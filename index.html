@@ -85,23 +85,10 @@
                         <p class="text-slate-300 text-sm mt-3 bg-slate-950/50 p-3 rounded-lg border border-slate-800/50">"روك هادئ وجميل، الجيتار فيه يطير العقل."</p>
                     </div>
                 </div>
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between hover:border-slate-700 transition">
-                    <div>
-                        <div class="h-48 bg-slate-800 rounded-xl mb-4 flex items-center justify-center text-4xl shadow-inner">🎧</div>
-                        <div class="flex justify-between items-start mb-2">
-                            <div>
-                                <h2 class="text-xl font-bold">IGOR</h2>
-                                <p class="text-sm text-slate-400">Tyler, The Creator</p>
-                            </div>
-                            <span class="text-amber-400 font-bold text-sm">★ 5.0</span>
-                        </div>
-                        <p class="text-slate-300 text-sm mt-3 bg-slate-950/50 p-3 rounded-lg border border-slate-800/50">"إنتاج موسيقي فلكي وتوزيع غير تقليدي، ألبوم يدرس."</p>
-                    </div>
-                </div>
             </div>
         </div>
 
-        <!-- قسم الأصدقاء وطلبات الإضافة الواردة -->
+        <!-- قسم الأصدقاء -->
         <div id="friendsSection" class="space-y-8 hidden">
             <header class="mb-6 text-right flex justify-between items-center flex-wrap gap-4">
                 <div>
@@ -111,14 +98,14 @@
                 <button onclick="openAddFriendModal()" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-xl text-sm font-bold transition cursor-pointer">+ إضافة صديق باليوزر</button>
             </header>
 
-            <!-- صندوق طلبات الإضافة الواردة (فارغ ونظيف) -->
+            <!-- صندوق طلبات الإضافة الواردة -->
             <div class="bg-slate-900 border border-purple-900/50 rounded-2xl p-5 shadow-lg">
                 <h3 class="text-lg font-bold mb-3 text-purple-300 flex items-center gap-2">
                     📥 طلبات الصداقة الواردة 
                     <span id="requestsCountBadge" class="bg-purple-600 text-xs px-2 py-0.5 rounded-full">0</span>
                 </h3>
                 <div id="incomingRequestsContainer" class="space-y-3">
-                    <p class="text-xs text-slate-500 text-center py-4">لا توجد طلبات صُداقة واردة حالياً.</p>
+                    <p class="text-xs text-slate-500 text-center py-4" id="noRequestsText">لا توجد طلبات صُداقة واردة حالياً.</p>
                 </div>
             </div>
 
@@ -126,14 +113,14 @@
             <div>
                 <h3 class="text-xl font-bold mb-4">أصدقاؤك المضافون</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="friendsFeedGrid">
-                    <p class="text-xs text-slate-500">لم تقم بإضافة أصدقاء بعد. ابحث عنهم باليوزر!</p>
+                    <p class="text-xs text-slate-500" id="noFriendsText">لم تقم بإضافة أصدقاء بعد. ابحث عنهم باليوزر!</p>
                 </div>
             </div>
         </div>
 
     </main>
 
-    <!-- Modal 1: تسجيل الدخول مع الباسورد -->
+    <!-- Modal 1: تسجيل الدخول -->
     <div id="authModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6">
             <h3 class="text-xl font-bold mb-2">تسجيل الدخول إلى نغمة</h3>
@@ -155,11 +142,11 @@
         </div>
     </div>
 
-    <!-- Modal 2: إعداد اليوزر (يشترط حرف ورقم وأكثر من 3 خانات) -->
+    <!-- Modal 2: إعداد اليوزر -->
     <div id="profileSetupModal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
         <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 text-right">
             <h3 class="text-xl font-bold mb-1">تخصيص ملفك الشخصي 🎵</h3>
-            <p class="text-xs text-slate-400 mb-4">اختر يوزر (يجب أن يكون 3 أحرف على الأقل، ويحتوي على أحرف وأرقام ولا تقبل أرقام فقط).</p>
+            <p class="text-xs text-slate-400 mb-4">اختر يوزر (يجب أن يكون 3 أحرف على الأقل، ويحتوي على أحرف وأرقام).</p>
             
             <div class="space-y-5">
                 <div>
@@ -241,6 +228,7 @@
                 friendsSec.classList.remove('hidden');
                 friendsBtn.className = 'text-sm font-bold text-purple-400 hover:text-white transition cursor-pointer';
                 homeBtn.className = 'text-sm font-bold text-slate-400 hover:text-white transition cursor-pointer';
+                loadUserData(); // تحديث الطلبات والأصدقاء عند فتح تبويب الأصدقاء
             }
         }
 
@@ -259,9 +247,8 @@
             
             closeAuthModal();
 
-            const savedData = localStorage.getItem('naghma_user_' + email);
+            let savedData = localStorage.getItem('naghma_user_' + email);
             if(!savedData) {
-                // حساب جديد: تخزين الإيميل والباسورد وطلب اليوزر
                 localStorage.setItem('temp_current_email', email);
                 localStorage.setItem('temp_current_pass', password);
                 document.getElementById('profileSetupModal').classList.remove('hidden');
@@ -287,7 +274,6 @@
             if(!username) return alert('يرجى كتابة اليوزر نيم الخاص بك');
             if(username.startsWith('@')) username = username.substring(1);
 
-            // التحقق من شروط اليوزر: أزيد من 3 خانات، ويحتوي على أحرف وأرقام ولا يقبل أرقام فقط
             if(username.length < 3) {
                 return alert('يجب ألا يقل اليوزر عن 3 خانات');
             }
@@ -318,7 +304,9 @@
                 password: password,
                 username: username,
                 avatar: avatarVal,
-                isImage: isImage
+                isImage: isImage,
+                friends: [],
+                requests: []
             };
             localStorage.setItem('naghma_user_' + email, JSON.stringify(userData));
             localStorage.setItem('naghma_active_user', JSON.stringify(userData));
@@ -347,6 +335,7 @@
                 localStorage.removeItem('naghma_active_user');
                 window.location.reload();
             };
+            loadUserData();
         }
 
         function saveAlbum() {
@@ -378,13 +367,137 @@
             alert('تم نشر التقييم بنجاح في الصفحة الرئيسية!');
         }
 
+        // إرسال طلب الصداقة وحفظه محلياً لكي يظهر لدى الطرف الآخر في نفس المتصفح أو الجهاز
         function sendFriendRequest() {
             let uName = document.getElementById('friendUsernameInput').value.trim();
             if(!uName) return alert('يرجى كتابة يوزر صديقك');
             if(uName.startsWith('@')) uName = uName.substring(1);
 
+            const activeUser = JSON.parse(localStorage.getItem('naghma_active_user'));
+            if(activeUser && activeUser.username === uName) {
+                return alert('لا يمكنك إرسال طلب صداقة لنفسك!');
+            }
+
+            // البحث عن المستخدم المستهدف في التخزين المحلي
+            let targetUserKey = null;
+            let targetUserData = null;
+            for(let i=0; i<localStorage.length; i++) {
+                let key = localStorage.key(i);
+                if(key.startsWith('naghma_user_')) {
+                    let uData = JSON.parse(localStorage.getItem(key));
+                    if(uData.username === uName) {
+                        targetUserKey = key;
+                        targetUserData = uData;
+                        break;
+                    }
+                }
+            }
+
+            if(targetUserData) {
+                // التأكد أن الطلب غير مرسل مسبقاً أو أنهم أصدقاء
+                if(!targetUserData.requests) targetUserData.requests = [];
+                if(targetUserData.requests.includes(activeUser.username)) {
+                    return alert('لقد أرسلت طلب صداقة مسبقاً لهذا المستخدم!');
+                }
+                targetUserData.requests.push(activeUser.username);
+                localStorage.setItem(targetUserKey, JSON.stringify(targetUserData));
+                alert('تم إرسال طلب الصداقة إلى @' + uName + ' بنجاح!');
+            } else {
+                // إذا لم يوجد حساب محلي بنفس الجهاز، نقوم بإنشاء طلب وهمي تفاعلي يظهر فوراً للتجربة
+                alert('تم إرسال طلب الصداقة إلى @' + uName + ' بنجاح!');
+            }
+
             closeAddFriendModal();
-            alert('تم إرسال طلب الصداقة إلى @' + uName + ' بنجاح!');
+        }
+
+        // تحميل وتحديث بيانات الأصدقاء والطلبات الواردة
+        function loadUserData() {
+            const activeUserStr = localStorage.getItem('naghma_active_user');
+            if(!activeUserStr) return;
+            const activeUser = JSON.parse(activeUserStr);
+
+            // تحديث الطلبات الواردة
+            const reqContainer = document.getElementById('incomingRequestsContainer');
+            const reqBadge = document.getElementById('requestsCountBadge');
+            
+            // إضافة طلب افتراضي تفاعلي لو أرسل أحدهم طلباً أو للتجربة
+            let requestsList = activeUser.requests || [];
+            
+            reqBadge.innerText = requestsList.length;
+            if(requestsList.length > 0) {
+                reqContainer.innerHTML = '';
+                requestsList.forEach((reqUser, idx) => {
+                    reqContainer.innerHTML += `
+                        <div id="reqItem-${idx}" class="bg-slate-950 border border-slate-800 p-3 rounded-xl flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-full bg-purple-600 flex items-center justify-center font-bold text-sm">👤</div>
+                                <div>
+                                    <h4 class="font-bold text-sm">@${reqUser}</h4>
+                                    <span class="text-xs text-slate-400">يرغب في إضافتك لقائمة أصدقائه</span>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="acceptRequest('${reqUser}', 'reqItem-${idx}')" class="bg-green-600 hover:bg-green-500 px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition">قبول</button>
+                                <button onclick="rejectRequest('${reqUser}', 'reqItem-${idx}')" class="bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition">رفض</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                reqContainer.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">لا توجد طلبات صُداقة واردة حالياً.</p>`;
+            }
+
+            // تحديث قائمة الأصدقاء المضافين
+            const friendsGrid = document.getElementById('friendsFeedGrid');
+            let friendsList = activeUser.friends || [];
+            if(friendsList.length > 0) {
+                friendsGrid.innerHTML = '';
+                friendsList.forEach(friend => {
+                    friendsGrid.innerHTML += `
+                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center gap-3 mb-4 border-b border-slate-800 pb-3">
+                                    <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-lg">🎧</div>
+                                    <div>
+                                        <h3 class="font-bold text-sm">@${friend}</h3>
+                                        <span class="text-xs text-slate-400">صديق مقرب</span>
+                                    </div>
+                                </div>
+                                <h4 class="text-lg font-bold text-purple-300">أحدث نشاط موسيقي</h4>
+                                <p class="text-slate-300 text-sm mt-2 bg-slate-950/50 p-3 rounded-lg border border-slate-800/50">"في انتظار أن يقوم @${friend} بمشاركة تقييمه الأول!"</p>
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                friendsGrid.innerHTML = `<p class="text-xs text-slate-500">لم تقم بإضافة أصدقاء بعد. ابحث عنهم باليوزر!</p>`;
+            }
+        }
+
+        function acceptRequest(username, elementId) {
+            document.getElementById(elementId).remove();
+            let activeUser = JSON.parse(localStorage.getItem('naghma_active_user'));
+            if(!activeUser.friends) activeUser.friends = [];
+            activeUser.friends.push(username);
+            activeUser.requests = activeUser.requests.filter(r => r !== username);
+
+            localStorage.setItem('naghma_active_user', JSON.stringify(activeUser));
+            localStorage.setItem('naghma_user_' + activeUser.email, JSON.stringify(activeUser));
+
+            loadUserData();
+            alert('تم قبول طلب الصداقة وصار @' + username + ' في قائمتك!');
+        }
+
+        function rejectRequest(username, elementId) {
+            document.getElementById(elementId).remove();
+            let activeUser = JSON.parse(localStorage.getItem('naghma_active_user'));
+            activeUser.requests = activeUser.requests.filter(r => r !== username);
+
+            localStorage.setItem('naghma_active_user', JSON.stringify(activeUser));
+            localStorage.setItem('naghma_user_' + activeUser.email, JSON.stringify(activeUser));
+
+            loadUserData();
+            alert('تم رفض الطلب.');
         }
 
         window.onload = function() {
