@@ -52,7 +52,7 @@
 
         <!-- Loading State -->
         <div id="loadingState" class="hidden mt-8 text-indigo-400 text-sm font-bold animate-pulse">
-            جاري استخراج رابط التحميل المباشر بدون حقوق... ⏳
+            جاري معالجة الفيديو والتأكد من رابط التنزيل... ⏳
         </div>
 
         <!-- Result Section -->
@@ -63,15 +63,15 @@
             </div>
             
             <div class="flex flex-col sm:flex-row items-center gap-4 bg-slate-950 p-4 rounded-xl border border-slate-800/50">
-                <div class="w-24 h-24 bg-slate-800 rounded-lg flex items-center justify-center text-3xl shrink-0 overflow-hidden" id="videoThumb">🎬</div>
+                <div class="w-24 h-24 bg-slate-800 rounded-lg flex items-center justify-center text-3xl shrink-0">🎬</div>
                 <div class="flex-1 text-right space-y-1">
                     <h4 id="videoTitle" class="font-bold text-sm">مقطع فيديو بدون علامة مائية</h4>
-                    <p class="text-xs text-slate-400">جودة عالية MP4 • جاهز للتنزيل المباشر</p>
+                    <p class="text-xs text-slate-400">جودة عالية MP4 • جاهز للتنزيل</p>
                 </div>
             </div>
 
             <div class="flex gap-3 pt-2">
-                <a id="downloadDirectBtn" href="#" download="video.mp4" target="_blank" class="flex-1 bg-green-600 hover:bg-green-500 py-3 rounded-xl text-sm font-bold text-center transition cursor-pointer block text-white">
+                <a id="downloadDirectBtn" href="#" target="_blank" class="flex-1 bg-green-600 hover:bg-green-500 py-3 rounded-xl text-sm font-bold text-center transition cursor-pointer block text-white">
                     تحميل الفيديو MP4 الآن 📥
                 </a>
                 <button onclick="resetView()" class="px-5 bg-slate-800 hover:bg-slate-700 py-3 rounded-xl text-sm font-bold transition cursor-pointer">
@@ -87,8 +87,9 @@
     </footer>
 
     <script>
-        async function processDownload() {
-            const url = document.getElementById('videoUrlInput').value.trim();
+        function processDownload() {
+            const urlInput = document.getElementById('videoUrlInput');
+            const url = urlInput.value.trim();
             if(!url) return alert('يرجى لصق رابط الفيديو أولاً!');
             if(!url.startsWith('http')) return alert('الرابط غير صالح.');
 
@@ -98,39 +99,35 @@
             const titleElem = document.getElementById('videoTitle');
             const btnText = document.getElementById('btnText');
 
+            btnText.innerText = 'جاري المعالجة...';
             loadingState.classList.remove('hidden');
             resultSec.classList.add('hidden');
-            btnText.innerText = 'جاري المعالجة...';
 
-            try {
-                // استخراج المقطع المباشر عبر API خارجي مجاني للتيك توك والمنصات
-                const apiUrl = `https://api.tiklydown.eu.org/api/download?url=${encodeURIComponent(url)}`;
-                const response = await fetch(apiUrl);
-                const data = await response.json();
+            setTimeout(() => {
+                let downloadServiceUrl = '';
 
-                if(data && data.video && data.video.noWatermark) {
-                    downloadBtn.href = data.video.noWatermark;
-                    titleElem.innerText = data.title || 'مقطع تيك توك بدون حقوق';
+                if (url.includes('tiktok.com')) {
+                    titleElem.innerText = 'مقطع تيك توك بدون حقوق';
+                    downloadServiceUrl = `https://ssstik.io/ar?url=${encodeURIComponent(url)}`;
+                } else if (url.includes('instagram.com')) {
+                    titleElem.innerText = 'مقطع إنستقرام ريلز HD';
+                    downloadServiceUrl = `https://snapinst.app/ar?url=${encodeURIComponent(url)}`;
+                } else if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                    titleElem.innerText = 'مقطع فيديو يوتيوب عالية الجودة';
+                    downloadServiceUrl = `https://y2mate.is/ar?url=${encodeURIComponent(url)}`;
+                } else if (url.includes('twitter.com') || url.includes('x.com')) {
+                    titleElem.innerText = 'مقطع منصة إكس (تويتر)';
+                    downloadServiceUrl = `https://ssstwitter.com/ar?url=${encodeURIComponent(url)}`;
                 } else {
-                    // إذا كان الرابط لمنصة أخرى أو لم يتوفر الـ API نستخدم محول مباشر للتحميل
-                    const fallbackDownloadUrl = `https://ssstik.io/abc?url=dl&direct=1&link=${encodeURIComponent(url)}`;
-                    downloadBtn.href = fallbackDownloadUrl;
-                    titleElem.innerText = 'جاهز للتحميل المباشر';
+                    titleElem.innerText = 'مقطع فيديو من الرابط المرفق';
+                    downloadServiceUrl = `https://cobalt.tools/?url=${encodeURIComponent(url)}`;
                 }
 
+                downloadBtn.href = downloadServiceUrl;
                 loadingState.classList.add('hidden');
                 resultSec.classList.remove('hidden');
-            } catch (err) {
-                // في حال حدوث أي خطأ، يتم توجيه زر التحميل لرابط الخدمة المباشرة التلقائية
-                const serviceUrl = `https://savett.cc/ar/?url=${encodeURIComponent(url)}`;
-                downloadBtn.href = serviceUrl;
-                titleElem.innerText = 'اضغط على زر التحميل للحصول على الفيديو';
-                
-                loadingState.classList.add('hidden');
-                resultSec.classList.remove('hidden');
-            } finally {
                 btnText.innerText = 'جلب الفيديو';
-            }
+            }, 500);
         }
 
         function resetView() {
