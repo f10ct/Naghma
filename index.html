@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>نغمة | Naghma - منصة تقييم الموسيقى</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Tajawal', sans-serif; background-color: #0b0f19; color: #fff; }
@@ -19,9 +18,16 @@
             <div class="flex items-center gap-3">
                 <span class="text-3xl font-black bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent">نغمة</span>
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-4">
                 <button onclick="switchTab('home')" id="homeTabBtn" class="text-sm font-bold text-purple-400 hover:text-white transition cursor-pointer">الرئيسية</button>
                 <button onclick="switchTab('friends')" id="friendsTabBtn" class="text-sm font-bold text-slate-400 hover:text-white transition cursor-pointer">الأصدقاء</button>
+                
+                <!-- ملف المستخدم المسجل -->
+                <div id="userProfileBadge" class="hidden flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700">
+                    <div id="navAvatar" class="w-7 h-7 rounded-full bg-purple-600 flex items-center justify-center text-xs overflow-hidden bg-cover bg-center"></div>
+                    <span id="navUsername" class="text-xs font-bold text-purple-300"></span>
+                </div>
+
                 <button onclick="openAuthModal()" id="authNavBtn" class="bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-slate-700 transition cursor-pointer">تسجيل الدخول</button>
                 <button onclick="openAddModal()" class="bg-gradient-to-r from-pink-600 to-purple-600 px-3 py-1.5 rounded-xl text-xs font-bold hover:opacity-90 transition cursor-pointer">+ تقييم</button>
             </div>
@@ -31,17 +37,17 @@
     <!-- Main Container -->
     <main class="max-w-6xl mx-auto px-4 pt-8">
         
-        <!-- قسم الصفحة الرئيسية (التقييمات العامة) -->
+        <!-- قسم الرئيسية -->
         <div id="homeSection" class="space-y-6">
             <header class="mb-6 text-right">
                 <h1 class="text-3xl font-bold mb-2">أحدث الألبومات المقيّمة</h1>
-                <p class="text-slate-400">شارِك آراءك واستكشف تقييمات المجتمع لأبرز الألبومات.</p>
+                <p class="text-slate-400">شارِك آراءك واستكشف تقييمات المجتمع لأبرز الألبومات والأغاني.</p>
             </header>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="albumsGrid">
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between">
                     <div>
-                        <div class="h-48 bg-slate-800 rounded-xl mb-4 flex items-center justify-center text-4xl shadow-inner">🎵</div>
+                        <div class="h-48 bg-slate-800 rounded-xl mb-4 flex items-center justify-center text-4xl shadow-inner">🎷</div>
                         <div class="flex justify-between items-start mb-2">
                             <div>
                                 <h2 class="text-xl font-bold">Mister Magic</h2>
@@ -55,25 +61,24 @@
             </div>
         </div>
 
-        <!-- قسم الأصدقاء (نشاط الأصدقاء وتقييماتهم) -->
+        <!-- قسم الأصدقاء -->
         <div id="friendsSection" class="space-y-6 hidden">
             <header class="mb-6 text-right flex justify-between items-center flex-wrap gap-4">
                 <div>
                     <h1 class="text-3xl font-bold mb-2">نشاط الأصدقاء</h1>
-                    <p class="text-slate-400">تابع أحدث الأغاني والألبومات التي قيّمها أصدقاؤك.</p>
+                    <p class="text-slate-400">ابحث عن أصدقائك بـ اليوزر نيم وتابع تقييماتهم الموسيقية.</p>
                 </div>
-                <button onclick="openAddFriendModal()" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-xl text-sm font-bold transition cursor-pointer">+ إضافة صديق</button>
+                <button onclick="openAddFriendModal()" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-xl text-sm font-bold transition cursor-pointer">+ إضافة صديق باليوزر</button>
             </header>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="friendsFeedGrid">
-                <!-- عنصر تجريبي لصديق -->
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between">
                     <div>
                         <div class="flex items-center gap-3 mb-4 border-b border-slate-800 pb-3">
-                            <div class="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center font-bold">ص</div>
+                            <div class="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-lg">🎧</div>
                             <div>
-                                <h3 class="font-bold text-sm">صديق مقرب</h3>
-                                <span class="text-xs text-slate-400">قام بتقييم ألبوم مؤخراً</span>
+                                <h3 class="font-bold text-sm">@faisal_m</h3>
+                                <span class="text-xs text-slate-400">صديق مقرب</span>
                             </div>
                         </div>
                         <h4 class="text-lg font-bold text-purple-300">Blinding Lights - The Weeknd</h4>
@@ -85,25 +90,58 @@
 
     </main>
 
-    <!-- Modal: Auth (تسجيل الدخول عبر Supabase OTP) -->
+    <!-- Modal 1: تسجيل الدخول بالإيميل -->
     <div id="authModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6">
             <h3 class="text-xl font-bold mb-2">تسجيل الدخول إلى نغمة</h3>
-            <p class="text-xs text-slate-400 mb-4">أدخل بريدك الإلكتروني لنرسل لك رابط الدخول المباشر.</p>
+            <p class="text-xs text-slate-400 mb-4">أدخل بريدك الإلكتروني للمتابعة فوراً.</p>
             <div class="space-y-4">
                 <div>
                     <label class="block text-xs text-slate-400 mb-1">البريد الإلكتروني</label>
                     <input type="email" id="userEmail" placeholder="name@example.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm focus:outline-none focus:border-purple-500">
                 </div>
                 <div class="flex gap-3 pt-2">
-                    <button onclick="handleLogin()" class="flex-1 bg-gradient-to-r from-pink-600 to-purple-600 py-2.5 rounded-xl text-sm font-bold cursor-pointer">إرسال رابط التحقق</button>
+                    <button onclick="startAuthProcess()" class="flex-1 bg-gradient-to-r from-pink-600 to-purple-600 py-2.5 rounded-xl text-sm font-bold cursor-pointer">متابعة</button>
                     <button onclick="closeAuthModal()" class="px-4 bg-slate-800 rounded-xl text-sm font-bold cursor-pointer">إلغاء</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal: Add Review -->
+    <!-- Modal 2: إعداد اليوزر والصورة الرمزية (يظهر فور الدخول) -->
+    <div id="profileSetupModal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 text-right">
+            <h3 class="text-xl font-bold mb-1">تخصيص ملفك الشخصي 🎵</h3>
+            <p class="text-xs text-slate-400 mb-4">اختر اليوزر نيم الخاص بك وصورتك الرمزية ليجدك أصدقاؤك.</p>
+            
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">اسم المستخدم (اليوزر) - أقصى حد 30 حرف</label>
+                    <div class="relative">
+                        <span class="absolute right-3 top-3 text-slate-500 text-sm">@</span>
+                        <input type="text" id="usernameInput" maxlength="30" placeholder="mohsen_marwi" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 pr-8 text-sm focus:outline-none focus:border-purple-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs text-slate-400 mb-2">اختر صورة رمزية جاهزة:</label>
+                    <div class="flex gap-3 justify-center mb-3">
+                        <button onclick="selectAvatarEmoji('🎵')" class="avatar-option w-12 h-12 rounded-xl bg-slate-800 text-2xl border border-slate-700 hover:border-purple-500 flex items-center justify-center">🎵</button>
+                        <button onclick="selectAvatarEmoji('🎸')" class="avatar-option w-12 h-12 rounded-xl bg-slate-800 text-2xl border border-slate-700 hover:border-purple-500 flex items-center justify-center">🎸</button>
+                        <button onclick="selectAvatarEmoji('🎧')" class="avatar-option w-12 h-12 rounded-xl bg-slate-800 text-2xl border border-slate-700 hover:border-purple-500 flex items-center justify-center">🎧</button>
+                        <button onclick="selectAvatarEmoji('🎷')" class="avatar-option w-12 h-12 rounded-xl bg-slate-800 text-2xl border border-slate-700 hover:border-purple-500 flex items-center justify-center">🎷</button>
+                    </div>
+
+                    <label class="block text-xs text-slate-400 mb-1">أو ارفع صورة من ألبوم صورك:</label>
+                    <input type="file" id="avatarFileInput" accept="image/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-purple-900/40 file:text-purple-300 hover:file:bg-purple-900/60">
+                </div>
+
+                <button onclick="saveUserProfile()" class="w-full bg-gradient-to-r from-pink-600 to-purple-600 py-3 rounded-xl text-sm font-bold cursor-pointer hover:opacity-90 transition">حفظ والبدء في نغمة</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Add Album -->
     <div id="addModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6">
             <h3 class="text-xl font-bold mb-4">إضافة تقييم جديد</h3>
@@ -120,14 +158,17 @@
         </div>
     </div>
 
-    <!-- Modal: Add Friend -->
+    <!-- Modal: Add Friend by Username -->
     <div id="addFriendModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6">
-            <h3 class="text-xl font-bold mb-4">إضافة صديق جديد</h3>
+            <h3 class="text-xl font-bold mb-4">إضافة صديق بـ اليوزر نيم</h3>
             <div class="space-y-4">
-                <input type="text" id="friendName" placeholder="اسم الصديق أو معرفه" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm">
+                <div class="relative">
+                    <span class="absolute right-3 top-3 text-slate-500 text-sm">@</span>
+                    <input type="text" id="friendUsernameInput" maxlength="30" placeholder="اكتب يوزر صديقك هنا" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 pr-8 text-sm focus:outline-none focus:border-purple-500">
+                </div>
                 <div class="flex gap-3 pt-2">
-                    <button onclick="saveFriend()" class="flex-1 bg-indigo-600 py-2.5 rounded-xl text-sm font-bold cursor-pointer">إضافة للقائمة</button>
+                    <button onclick="saveFriendByUsername()" class="flex-1 bg-indigo-600 py-2.5 rounded-xl text-sm font-bold cursor-pointer">إضافة للقائمة</button>
                     <button onclick="closeAddFriendModal()" class="px-4 bg-slate-800 rounded-xl text-sm font-bold cursor-pointer">إلغاء</button>
                 </div>
             </div>
@@ -135,18 +176,8 @@
     </div>
 
     <script>
-        const SUPABASE_URL = 'https://hajauilhnphamdmomhqn.supabase.co';
-        // مفتاح نظيف بدون أي أحرف عربية لتجنب أخطاء الهيدرز
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhamF1aWxobnBoYW1kbW9tcWhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEyMzg1NzQsImV4cCI6MjA1NjgxNDU3NH0'; 
-        
-        let supabaseClient = null;
-        try {
-            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        } catch(e) {
-            console.log('Supabase init note:', e);
-        }
+        let selectedAvatarData = '🎧';
 
-        // التنقل بين الأقسام (الرئيسية والأصدقاء)
         function switchTab(tab) {
             const homeSec = document.getElementById('homeSection');
             const friendsSec = document.getElementById('friendsSection');
@@ -173,31 +204,79 @@
         function openAddFriendModal() { document.getElementById('addFriendModal').classList.remove('hidden'); }
         function closeAddFriendModal() { document.getElementById('addFriendModal').classList.add('hidden'); }
 
-        // نظام تسجيل الدخول الحقيقي عبر Supabase OTP
-        async function handleLogin() {
+        function startAuthProcess() {
             const email = document.getElementById('userEmail').value;
-            if(!email) return alert('يرجى كتابة البريد الإلكتروني');
+            if(!email) return alert('يرجى كتابة البريد الإلكتروني أولاً');
             
-            if(!supabaseClient) {
-                alert('تم تسجيل الدخول محلياً بنجاح!');
-                closeAuthModal();
-                return;
-            }
+            localStorage.setItem('naghma_email', email);
+            closeAuthModal();
 
-            const { error } = await supabaseClient.auth.signInWithOtp({ 
-                email: email,
-                options: { emailRedirectTo: window.location.href }
-            });
-
-            if (error) {
-                alert('حدث خطأ: ' + error.message);
+            const existingUser = localStorage.getItem('naghma_user_data');
+            if(!existingUser) {
+                document.getElementById('profileSetupModal').classList.remove('hidden');
             } else {
-                alert('تم إرسال رابط التحقق إلى إيميلك بنجاح! تفقد بريدك.');
-                closeAuthModal();
+                updateUIWithUser(JSON.parse(existingUser));
+                alert('أهلاً بعودتك!');
             }
         }
 
-        // حفظ ألبوم ونشره فوراً
+        function selectAvatarEmoji(emoji) {
+            selectedAvatarData = emoji;
+            alert('تم اختيار الرمز: ' + emoji);
+        }
+
+        function saveUserProfile() {
+            let username = document.getElementById('usernameInput').value.trim();
+            if(!username) return alert('يرجى كتابة اليوزر نيم الخاص بك');
+            
+            if(username.startsWith('@')) username = username.substring(1);
+
+            const fileInput = document.getElementById('avatarFileInput');
+            if(fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    finalizeProfileSave(username, e.target.result, true);
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                finalizeProfileSave(username, selectedAvatarData, false);
+            }
+        }
+
+        function finalizeProfileSave(username, avatarVal, isImage) {
+            const userData = {
+                username: username,
+                avatar: avatarVal,
+                isImage: isImage
+            };
+            localStorage.setItem('naghma_user_data', JSON.stringify(userData));
+            document.getElementById('profileSetupModal').classList.add('hidden');
+            updateUIWithUser(userData);
+            alert('تم إنشاء حسابك بنجاح! يوزرك هو: @' + username);
+        }
+
+        function updateUIWithUser(user) {
+            document.getElementById('userProfileBadge').classList.remove('hidden');
+            document.getElementById('navUsername').innerText = '@' + user.username;
+            
+            const navAvatar = document.getElementById('navAvatar');
+            if(user.isImage) {
+                navAvatar.style.backgroundImage = `url('${user.avatar}')`;
+                navAvatar.innerText = '';
+            } else {
+                navAvatar.style.backgroundImage = 'none';
+                navAvatar.innerText = user.avatar || '🎧';
+            }
+
+            const authBtn = document.getElementById('authNavBtn');
+            authBtn.innerText = 'خروج';
+            authBtn.onclick = function() {
+                localStorage.removeItem('naghma_user_data');
+                localStorage.removeItem('naghma_email');
+                window.location.reload();
+            };
+        }
+
         function saveAlbum() {
             const title = document.getElementById('albumTitle').value;
             const artist = document.getElementById('artistName').value;
@@ -227,30 +306,37 @@
             alert('تم نشر التقييم بنجاح في الصفحة الرئيسية!');
         }
 
-        // إضافة صديق جديد لقائمة الأصدقاء
-        function saveFriend() {
-            const name = document.getElementById('friendName').value;
-            if(!name) return alert('يرجى كتابة اسم الصديق');
+        function saveFriendByUsername() {
+            let uName = document.getElementById('friendUsernameInput').value.trim();
+            if(!uName) return alert('يرجى كتابة يوزر صديقك');
+            if(uName.startsWith('@')) uName = uName.substring(1);
 
             const feedGrid = document.getElementById('friendsFeedGrid');
             const friendCard = `
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between">
                     <div>
                         <div class="flex items-center gap-3 mb-4 border-b border-slate-800 pb-3">
-                            <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center font-bold">${name.charAt(0)}</div>
+                            <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-sm">@</div>
                             <div>
-                                <h3 class="font-bold text-sm">${name}</h3>
+                                <h3 class="font-bold text-sm">@${uName}</h3>
                                 <span class="text-xs text-slate-400">صديق مضاف حديثاً</span>
                             </div>
                         </div>
                         <h4 class="text-lg font-bold text-purple-300">أحدث نشاط موسيقي</h4>
-                        <p class="text-slate-300 text-sm mt-2 bg-slate-950/50 p-3 rounded-lg border border-slate-800/50">"في انتظار أن يقوم ${name} بمشاركة تقييمه الأول!"</p>
+                        <p class="text-slate-300 text-sm mt-2 bg-slate-950/50 p-3 rounded-lg border border-slate-800/50">"في انتظار أن يقوم @${uName} بمشاركة تقييمه الأول!"</p>
                     </div>
                 </div>
             `;
             feedGrid.insertAdjacentHTML('afterbegin', friendCard);
             closeAddFriendModal();
-            alert('تمت إضافة الصديق بنجاح إلى قائمتك!');
+            alert('تمت إضافة الصديق @' + uName + ' بنجاح إلى قائمتك!');
+        }
+
+        window.onload = function() {
+            const savedData = localStorage.getItem('naghma_user_data');
+            if(savedData) {
+                updateUIWithUser(JSON.parse(savedData));
+            }
         }
     </script>
 </body>
