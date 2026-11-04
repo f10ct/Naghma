@@ -35,8 +35,8 @@
         <div class="bg-slate-900 border border-slate-800 p-4 sm:p-6 rounded-2xl shadow-2xl space-y-4">
             <div class="flex flex-col sm:flex-row gap-3">
                 <input type="text" id="videoUrlInput" placeholder="الصق رابط الفيديو هنا (https://...)" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl p-4 text-sm text-left dir-ltr focus:outline-none focus:border-indigo-500 transition">
-                <button onclick="processDownload()" class="bg-gradient-to-r from-cyan-500 to-indigo-600 hover:opacity-90 px-6 py-4 rounded-xl font-bold text-sm transition cursor-pointer flex items-center justify-center gap-2">
-                    <span>جلب الفيديو</span>
+                <button onclick="processDownload()" id="fetchBtn" class="bg-gradient-to-r from-cyan-500 to-indigo-600 hover:opacity-90 px-6 py-4 rounded-xl font-bold text-sm transition cursor-pointer flex items-center justify-center gap-2">
+                    <span id="btnText">جلب الفيديو</span>
                     <span>⚡</span>
                 </button>
             </div>
@@ -50,26 +50,30 @@
             </div>
         </div>
 
+        <!-- Loading State -->
+        <div id="loadingState" class="hidden mt-8 text-indigo-400 text-sm font-bold animate-pulse">
+            جاري استخراج رابط التحميل المباشر بدون حقوق... ⏳
+        </div>
+
         <!-- Result Section -->
         <div id="resultSection" class="hidden mt-8 bg-slate-900 border border-slate-800 rounded-2xl p-6 text-right space-y-4">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 class="font-bold text-sm text-indigo-400">جاهز للتحميل</h3>
-                <span class="text-xs bg-green-500/10 text-green-400 px-2.5 py-1 rounded-full border border-green-500/20">تم المعالجة بنجاح</span>
+                <h3 class="font-bold text-sm text-indigo-400">جاهز للتحميل المباشر</h3>
+                <span class="text-xs bg-green-500/10 text-green-400 px-2.5 py-1 rounded-full border border-green-500/20">تمت المعالجة بنجاح</span>
             </div>
             
             <div class="flex flex-col sm:flex-row items-center gap-4 bg-slate-950 p-4 rounded-xl border border-slate-800/50">
-                <div class="w-24 h-24 bg-slate-800 rounded-lg flex items-center justify-center text-3xl shrink-0">🎬</div>
+                <div class="w-24 h-24 bg-slate-800 rounded-lg flex items-center justify-center text-3xl shrink-0 overflow-hidden" id="videoThumb">🎬</div>
                 <div class="flex-1 text-right space-y-1">
-                    <h4 id="videoTitle" class="font-bold text-sm">مقطع فيديو من المنصة</h4>
-                    <p class="text-xs text-slate-400">جودة عالية HD • بدون علامة مائية</p>
+                    <h4 id="videoTitle" class="font-bold text-sm">مقطع فيديو بدون علامة مائية</h4>
+                    <p class="text-xs text-slate-400">جودة عالية MP4 • جاهز للتنزيل المباشر</p>
                 </div>
             </div>
 
             <div class="flex gap-3 pt-2">
-                <!-- تم ربط الزر لتحميل ملف الفيديو مباشرة أو توجيهه للرابط الخارجي بشكل صحيح -->
-                <button onclick="triggerFileDownload()" class="flex-1 bg-green-600 hover:bg-green-500 py-3 rounded-xl text-sm font-bold text-center transition cursor-pointer text-white">
-                    تحميل الملف الآن 📥
-                </button>
+                <a id="downloadDirectBtn" href="#" download="video.mp4" target="_blank" class="flex-1 bg-green-600 hover:bg-green-500 py-3 rounded-xl text-sm font-bold text-center transition cursor-pointer block text-white">
+                    تحميل الفيديو MP4 الآن 📥
+                </a>
                 <button onclick="resetView()" class="px-5 bg-slate-800 hover:bg-slate-700 py-3 rounded-xl text-sm font-bold transition cursor-pointer">
                     رابط آخر
                 </button>
@@ -83,52 +87,56 @@
     </footer>
 
     <script>
-        let currentVideoUrl = '';
-
-        function processDownload() {
-            const url = document.getElementById('videoUrlInput'].value.trim();
+        async function processDownload() {
+            const url = document.getElementById('videoUrlInput').value.trim();
             if(!url) return alert('يرجى لصق رابط الفيديو أولاً!');
             if(!url.startsWith('http')) return alert('الرابط غير صالح.');
 
-            currentVideoUrl = url;
+            const loadingState = document.getElementById('loadingState');
             const resultSec = document.getElementById('resultSection');
+            const downloadBtn = document.getElementById('downloadDirectBtn');
             const titleElem = document.getElementById('videoTitle');
+            const btnText = document.getElementById('btnText');
 
-            if(url.includes('tiktok')) {
-                titleElem.innerText = 'مقطع تيك توك بدون حقوق';
-            } else if(url.includes('instagram')) {
-                titleElem.innerText = 'مقطع إنستقرام ريلز';
-            } else if(url.includes('youtube') || url.includes('youtu.be')) {
-                titleElem.innerText = 'مقطع فيديو يوتيوب';
-            } else if(url.includes('twitter') || url.includes('x.com')) {
-                titleElem.innerText = 'مقطع منصة إكس (تويتر)';
-            } else {
-                titleElem.innerText = 'مقطع فيديو من الرابط المرفق';
+            loadingState.classList.remove('hidden');
+            resultSec.classList.add('hidden');
+            btnText.innerText = 'جاري المعالجة...';
+
+            try {
+                // استخراج المقطع المباشر عبر API خارجي مجاني للتيك توك والمنصات
+                const apiUrl = `https://api.tiklydown.eu.org/api/download?url=${encodeURIComponent(url)}`;
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if(data && data.video && data.video.noWatermark) {
+                    downloadBtn.href = data.video.noWatermark;
+                    titleElem.innerText = data.title || 'مقطع تيك توك بدون حقوق';
+                } else {
+                    // إذا كان الرابط لمنصة أخرى أو لم يتوفر الـ API نستخدم محول مباشر للتحميل
+                    const fallbackDownloadUrl = `https://ssstik.io/abc?url=dl&direct=1&link=${encodeURIComponent(url)}`;
+                    downloadBtn.href = fallbackDownloadUrl;
+                    titleElem.innerText = 'جاهز للتحميل المباشر';
+                }
+
+                loadingState.classList.add('hidden');
+                resultSec.classList.remove('hidden');
+            } catch (err) {
+                // في حال حدوث أي خطأ، يتم توجيه زر التحميل لرابط الخدمة المباشرة التلقائية
+                const serviceUrl = `https://savett.cc/ar/?url=${encodeURIComponent(url)}`;
+                downloadBtn.href = serviceUrl;
+                titleElem.innerText = 'اضغط على زر التحميل للحصول على الفيديو';
+                
+                loadingState.classList.add('hidden');
+                resultSec.classList.remove('hidden');
+            } finally {
+                btnText.innerText = 'جلب الفيديو';
             }
-
-            resultSec.classList.remove('hidden');
-        }
-
-        function triggerFileDownload() {
-            if(!currentVideoUrl) return;
-            
-            // محاولة تنزيل الفيديو كملف، وإذا كان موقع المنصة يحميه، نقوم بتحويله لصفحة التحميل المباشرة
-            alert('جاري بدء تحميل الفيديو...');
-            
-            // إنشاء رابط تحميل وهمي لتنزيل الملف أو فتحه بصفحة جديدة نظيفة
-            const a = document.createElement('a');
-            a.href = currentVideoUrl;
-            a.setAttribute('download', 'video.mp4');
-            a.setAttribute('target', '_blank');
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
         }
 
         function resetView() {
             document.getElementById('videoUrlInput').value = '';
             document.getElementById('resultSection').classList.add('hidden');
-            currentVideoUrl = '';
+            document.getElementById('loadingState').classList.add('hidden');
         }
     </script>
 </body>
