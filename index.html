@@ -1,4 +1,232 @@
-<script>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نغمة | Naghma - منصة تقييم الموسيقى</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Tajawal', sans-serif; background-color: #14181c; color: #9ab; }
+        .lb-card { background-color: #2c3440; border: 1px solid #455565; transition: all 0.2s ease; }
+        .lb-card:hover { border-color: #00b020; transform: translateY(-3px); }
+        .lb-input { background-color: #1b2229; border: 1px solid #455565; color: #fff; }
+        .lb-input:focus { border-color: #00b020; outline: none; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-[#00b020] selection:text-white">
+
+    <!-- Navbar -->
+    <nav class="bg-[#14181c] border-b border-[#2c3440] sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-6">
+                <span onclick="switchTab('home')" class="text-2xl font-black text-white tracking-wider cursor-pointer flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-[#00b020]"></span>نغمة <span class="text-xs text-[#9ab] font-normal">Naghma</span>
+                </span>
+
+                <div class="hidden md:flex items-center gap-4 text-sm font-bold">
+                    <button onclick="switchTab('home')" id="navHome" class="text-white hover:text-[#00b020] transition cursor-pointer">الأغاني</button>
+                    <button onclick="switchTab('artists')" id="navArtists" class="text-[#9ab] hover:text-[#00b020] transition cursor-pointer">الفنانون</button>
+                    <button onclick="switchTab('friends')" id="navFriends" class="text-[#9ab] hover:text-[#00b020] transition cursor-pointer">الأصدقاء</button>
+                    <button onclick="switchTab('reviews')" id="navReviews" class="text-[#9ab] hover:text-[#00b020] transition cursor-pointer">المراجعات</button>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="relative hidden sm:block">
+                    <input type="text" id="searchInput" oninput="handleSearch(this.value)" placeholder="ابحث عن أغنية، فنان..." class="lb-input rounded-lg px-3 py-1.5 text-xs w-48 focus:w-64 transition-all">
+                    <i class="fa-solid fa-search absolute left-3 top-2.5 text-xs text-gray-400"></i>
+                </div>
+                <div id="userBadge" class="hidden flex items-center gap-2 bg-[#2c3440] px-3 py-1 rounded-lg border border-[#455565]">
+                    <span id="navUserAvatar" class="text-sm">🎧</span>
+                    <span id="navUsername" class="text-xs font-bold text-white"></span>
+                    <button onclick="logout()" class="text-xs text-red-400 mr-2 hover:underline cursor-pointer">خروج</button>
+                </div>
+                <button onclick="openAuthModal()" id="authBtn" class="bg-[#00b020] hover:bg-[#00c025] text-white px-4 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer">تسجيل الدخول</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="max-w-6xl mx-auto px-4 pt-8 pb-16 flex-1 w-full">
+        
+        <!-- HOME TAB -->
+        <div id="homeTab" class="space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-[#2c3440] pb-4">
+                <div>
+                    <h1 class="text-2xl font-black text-white">مكتبة الأغاني الكاملة (100 أغنية)</h1>
+                    <p class="text-xs text-[#9ab] mt-1">قيم الأغاني من 5 نجوم واستكشف انطباعات المجتمع (أغلفة سبوتيفاي الأصلية)</p>
+                </div>
+                <button onclick="openRateModal()" class="bg-[#00b020] hover:bg-[#00c025] text-white px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer">
+                    <i class="fa-solid fa-star ml-1"></i> تقييم أغنية جديدة
+                </button>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4" id="songsGrid"></div>
+        </div>
+
+        <!-- ARTISTS TAB -->
+        <div id="artistsTab" class="space-y-6 hidden">
+            <div class="border-b border-[#2c3440] pb-4">
+                <h1 class="text-2xl font-black text-white">أبرز الفنانين</h1>
+                <p class="text-xs text-[#9ab] mt-1">تصفح الفنانين وأعمالهم الموسيقية</p>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6" id="artistsGrid"></div>
+        </div>
+
+        <!-- FRIENDS TAB -->
+        <div id="friendsTab" class="space-y-6 hidden">
+            <div class="border-b border-[#2c3440] pb-4 flex justify-between items-center flex-wrap gap-4">
+                <div>
+                    <h1 class="text-2xl font-black text-white">الأصدقاء والنشاط الاجتماعي</h1>
+                    <p class="text-xs text-[#9ab] mt-1">ابحث عن أصدقائك بـ اليوزر، تابع طلبات الإضافة، وشاركهم الموسيقى</p>
+                </div>
+                <button onclick="openAddFriendModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-xs font-bold transition cursor-pointer">
+                    <i class="fa-solid fa-user-plus ml-1"></i> إضافة صديق باليوزر
+                </button>
+            </div>
+
+            <div class="bg-[#2c3440] border border-[#455565] rounded-xl p-5 shadow-lg">
+                <h3 class="text-sm font-bold mb-3 text-white flex items-center gap-2">
+                    📥 طلبات الصداقة الواردة 
+                    <span id="requestsCountBadge" class="bg-indigo-600 text-[10px] px-2 py-0.5 rounded-full text-white">0</span>
+                </h3>
+                <div id="incomingRequestsContainer" class="space-y-3">
+                    <p class="text-xs text-[#9ab] text-center py-3">لا توجد طلبات صداقة واردة حالياً.</p>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-bold text-white mb-4">أصدقاؤك المضافون</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="friendsListContainer">
+                    <p class="text-xs text-[#9ab]">لم تقم بإضافة أصدقاء بعد. ابحث عنهم باليوزر!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- REVIEWS TAB -->
+        <div id="reviewsTab" class="space-y-6 hidden">
+            <div class="border-b border-[#2c3440] pb-4">
+                <h1 class="text-2xl font-black text-white">مراجعات المجتمع</h1>
+                <p class="text-xs text-[#9ab] mt-1">أحدث التقييمات والانطباعات للمستخدمين</p>
+            </div>
+            <div class="space-y-4 max-w-3xl" id="reviewsFeed"></div>
+        </div>
+
+        <!-- SONG DETAIL VIEW -->
+        <div id="songDetailView" class="space-y-6 hidden">
+            <button onclick="switchTab('home')" class="text-xs text-[#00b020] hover:underline cursor-pointer"><i class="fa-solid fa-arrow-right ml-1"></i> العودة للرئيسية</button>
+            <div class="bg-[#2c3440] border border-[#455565] rounded-xl p-6 flex flex-col md:flex-row gap-6">
+                <img id="detailPoster" src="" alt="" class="w-48 h-48 sm:w-60 sm:h-60 rounded-xl object-cover shadow-2xl mx-auto">
+                <div class="flex-1 text-right space-y-3">
+                    <div class="flex justify-between items-start flex-wrap gap-2">
+                        <div>
+                            <h1 id="detailTitle" class="text-3xl font-black text-white"></h1>
+                            <p id="detailArtist" class="text-lg text-[#00b020] font-bold mt-1"></p>
+                        </div>
+                        <div class="bg-[#14181c] px-4 py-2 rounded-xl border border-[#455565] text-center">
+                            <span class="text-xs text-[#9ab] block">تقييم المجتمع</span>
+                            <span id="detailRating" class="text-amber-400 font-black text-lg"></span>
+                        </div>
+                    </div>
+                    <p id="detailDesc" class="text-sm text-[#9ab] leading-relaxed pt-2"></p>
+                    <div class="pt-4 flex gap-3">
+                        <button onclick="openRateModalForCurrent()" class="bg-[#00b020] hover:bg-[#00c025] text-white px-5 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer">
+                            <i class="fa-solid fa-star ml-1"></i> قيم هذه الأغنية (من 5 نجوم)
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="space-y-4 pt-6">
+                <h3 class="text-xl font-bold text-white border-b border-[#2c3440] pb-2">مراجعات هذه الأغنية</h3>
+                <div id="songReviewsList" class="space-y-3"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- AUTH MODAL -->
+    <div id="authModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-[#2c3440] border border-[#455565] w-full max-w-md rounded-2xl p-6 text-right">
+            <h3 class="text-xl font-bold text-white mb-1">تسجيل الدخول إلى نغمة</h3>
+            <p class="text-xs text-[#9ab] mb-4">يتم حفظ بياناتك وحسابك تلقائياً على جهازك دون أن تفقدها.</p>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs text-[#9ab] mb-1">اسم المستخدم (اليوزر - أقصى 30 حرف)</label>
+                    <div class="relative flex items-center">
+                        <span class="absolute left-3 text-gray-500 text-sm">@</span>
+                        <input type="text" id="authUsername" maxlength="30" dir="ltr" placeholder="mohsen9" class="lb-input w-full rounded-xl p-3 pl-8 text-sm text-left">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs text-[#9ab] mb-1">البريد الإلكتروني</label>
+                    <input type="email" id="authEmail" placeholder="name@example.com" class="lb-input w-full rounded-xl p-3 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs text-[#9ab] mb-1">كلمة المرور</label>
+                    <input type="password" id="authPassword" placeholder="••••••••" class="lb-input w-full rounded-xl p-3 text-sm">
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button onclick="handleAuth()" class="flex-1 bg-[#00b020] hover:bg-[#00c025] text-white py-3 rounded-xl text-xs font-bold cursor-pointer">حفظ ودخول</button>
+                    <button onclick="closeAuthModal()" class="px-4 bg-[#14181c] border border-[#455565] rounded-xl text-xs font-bold cursor-pointer">إلغاء</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RATE MODAL -->
+    <div id="rateModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-[#2c3440] border border-[#455565] w-full max-w-md rounded-2xl p-6 text-right space-y-4">
+            <h3 id="rateModalTitle" class="text-xl font-bold text-white">تقييم أغنية</h3>
+            <div id="rateSongSelectContainer">
+                <label class="block text-xs text-[#9ab] mb-1">اختر الأغنية</label>
+                <select id="modalSongSelect" class="lb-input w-full rounded-xl p-3 text-xs cursor-pointer"></select>
+            </div>
+            <div>
+                <label class="block text-xs text-[#9ab] mb-1">التقييم (من 5 نجوم)</label>
+                <select id="modalStars" class="lb-input w-full rounded-xl p-3 text-xs cursor-pointer">
+                    <option value="★★★★★">★★★★★ (5 نجوم - أسطورية)</option>
+                    <option value="★★★★☆">★★★★☆ (4 نجوم - ممتازة)</option>
+                    <option value="★★★☆☆">★★★☆☆ (3 نجوم - جيدة)</option>
+                    <option value="★★☆☆☆">★★☆☆☆ (2 نجوم - مقبولة)</option>
+                    <option value="★☆☆☆☆">★☆☆☆☆ (1 نجمة - ضعيفة)</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs text-[#9ab] mb-1">مراجعتك أو انطباعك</label>
+                <textarea id="modalReviewText" placeholder="اكتب رأيك الفني بكل شفافية..." class="lb-input w-full rounded-xl p-3 text-xs h-24"></textarea>
+            </div>
+            <div class="flex gap-3 pt-2">
+                <button onclick="submitReview()" class="flex-1 bg-[#00b020] hover:bg-[#00c025] text-white py-3 rounded-xl text-xs font-bold cursor-pointer">نشر التقييم</button>
+                <button onclick="closeRateModal()" class="px-4 bg-[#14181c] border border-[#455565] rounded-xl text-xs font-bold cursor-pointer">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD FRIEND MODAL -->
+    <div id="addFriendModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-[#2c3440] border border-[#455565] w-full max-w-md rounded-2xl p-6 text-right space-y-4">
+            <h3 class="text-xl font-bold text-white">إضافة صديق بـ اليوزر نيم</h3>
+            <div>
+                <label class="block text-xs text-[#9ab] mb-1">اسم المستخدم لصديقك</label>
+                <div class="relative flex items-center">
+                    <span class="absolute left-3 text-gray-500 text-sm">@</span>
+                    <input type="text" id="friendUsernameInput" maxlength="30" dir="ltr" placeholder="faisal_m" class="lb-input w-full rounded-xl p-3 pl-8 text-sm text-left">
+                </div>
+            </div>
+            <div class="flex gap-3 pt-2">
+                <button onclick="sendFriendRequest()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl text-xs font-bold cursor-pointer">إرسال طلب صُداقة</button>
+                <button onclick="closeAddFriendModal()" class="px-4 bg-[#14181c] border border-[#455565] rounded-xl text-xs font-bold cursor-pointer">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-[#14181c] border-t border-[#2c3440] py-6 text-center text-xs text-[#9ab]">
+        <p>نغمة (Naghma) • منصة تقييم الموسيقى على غرار Letterboxd</p>
+    </footer>
+
+    <script>
         const songsData = [
             { id: 1, title: "Let It Happen", artist: "Tame Impala", rating: "★★★★★", score: "4.9", poster: "https://i.scdn.co/image/ab67616d0000b27393433e387dd708b73f84807f", desc: "أغنية سايكيديلك الكترونية مذهلة تتجاوز 7 دقائق من الإبداع." },
             { id: 2, title: "Sofia", artist: "Clairo", rating: "★★★★★", score: "4.8", poster: "https://i.scdn.co/image/ab67616d0000b2737021cb8293ad98fe4e3e3b12", desc: "إندي بوب دافئ بألحان جيتار ساحرة." },
@@ -54,4 +282,362 @@
             { name: "Nirvana", bio: "عملاقة الجرانج والروك التسعيني.", image: "https://i.scdn.co/image/ab6761610000e5eb9818d6e9f29107cc15cfdd79" },
             { name: "Clairo", bio: "نجمة الإندي بوب بصوت دافئ.", image: "https://i.scdn.co/image/ab6761610000e5eb38e2dc40d048d0859666fcfd" },
             { name: "Tame Impala", bio: "المشروع الموسيقي السايكيديلك المذهل.", image: "https://i.scdn.co/image/ab6761610000e5eb19e2fb7283ea0135ff372078" },
-            { name: "Deftones", bio: "فرقة الميتال البديل والشوغ
+            { name: "Deftones", bio: "فرقة الميتال البديل والشوغيز الأسطورية.", image: "https://i.scdn.co/image/ab6761610000e5eb19ae7e3ea8536868d4f40f0c" },
+            { name: "Cigarettes After Sex", bio: "فرقة الروك الرومانسي الحالم.", image: "https://i.scdn.co/image/ab6761610000e5eb1a473b64bc7d669ef02ff080" },
+            { name: "Taylor Swift", bio: "كاتبة الأغاني الحكواتية الأبرز.", image: "https://i.scdn.co/image/ab6761610000e5ebd435a266b738944f2b984a62" },
+            { name: "Adele", bio: "صوت القرن الحائز على غرامي.", image: "https://i.scdn.co/image/ab6761610000e5eb743666b6e4e5bc5312015db8" }
+        ];
+
+        let reviewsData = JSON.parse(localStorage.getItem('naghma_reviews') || JSON.stringify([
+            { user: "mohsen9", song: "Let It Happen", artist: "Tame Impala", stars: "★★★★★", text: "أغنية أخذتني لعالم ثاني، التوزيع الموسيقي فيها معجزة!", date: "منذ ساعتين" }
+        ]));
+
+        let currentUser = null;
+        let activeSongDetail = null;
+
+        function initApp() {
+            const active = localStorage.getItem('naghma_active_user');
+            if(active) {
+                currentUser = JSON.parse(active);
+                updateUserUI();
+            }
+            renderSongs(songsData);
+            renderArtists(artistsData);
+            renderReviews();
+            populateModalSongSelect();
+        }
+
+        function updateUserUI() {
+            if(currentUser) {
+                document.getElementById('userBadge').classList.remove('hidden');
+                document.getElementById('authBtn').classList.add('hidden');
+                document.getElementById('navUsername').innerText = '@' + currentUser.username;
+                document.getElementById('navUserAvatar').innerText = currentUser.avatar || '🎧';
+                loadUserData();
+            } else {
+                document.getElementById('userBadge').classList.add('hidden');
+                document.getElementById('authBtn').classList.remove('hidden');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('naghma_active_user');
+            currentUser = null;
+            updateUserUI();
+            alert('تم تسجيل الخروج.');
+        }
+
+        function switchTab(tab) {
+            document.getElementById('homeTab').classList.add('hidden');
+            document.getElementById('artistsTab').classList.add('hidden');
+            document.getElementById('friendsTab').classList.add('hidden');
+            document.getElementById('reviewsTab').classList.add('hidden');
+            document.getElementById('songDetailView').classList.add('hidden');
+
+            document.getElementById('navHome').className = "text-[#9ab] hover:text-[#00b020] transition cursor-pointer";
+            document.getElementById('navArtists').className = "text-[#9ab] hover:text-[#00b020] transition cursor-pointer";
+            document.getElementById('navFriends').className = "text-[#9ab] hover:text-[#00b020] transition cursor-pointer";
+            document.getElementById('navReviews').className = "text-[#9ab] hover:text-[#00b020] transition cursor-pointer";
+
+            if(tab === 'home') {
+                document.getElementById('homeTab').classList.remove('hidden');
+                document.getElementById('navHome').className = "text-white hover:text-[#00b020] transition cursor-pointer font-bold";
+            } else if(tab === 'artists') {
+                document.getElementById('artistsTab').classList.remove('hidden');
+                document.getElementById('navArtists').className = "text-white hover:text-[#00b020] transition cursor-pointer font-bold";
+            } else if(tab === 'friends') {
+                document.getElementById('friendsTab').classList.remove('hidden');
+                document.getElementById('navFriends').className = "text-white hover:text-[#00b020] transition cursor-pointer font-bold";
+                loadUserData();
+            } else if(tab === 'reviews') {
+                document.getElementById('reviewsTab').classList.remove('hidden');
+                document.getElementById('navReviews').className = "text-white hover:text-[#00b020] transition cursor-pointer font-bold";
+            }
+        }
+
+        function renderSongs(list) {
+            const grid = document.getElementById('songsGrid');
+            grid.innerHTML = '';
+            list.forEach(song => {
+                grid.innerHTML += `
+                    <div onclick="openSongDetail(${song.id})" class="lb-card rounded-xl p-3 flex flex-col justify-between cursor-pointer group">
+                        <div>
+                            <div class="relative aspect-square rounded-lg overflow-hidden bg-slate-800 mb-3">
+                                <img src="${song.poster}" alt="${song.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                                <span class="absolute top-2 left-2 bg-black/60 backdrop-blur-sm text-amber-400 text-[10px] px-2 py-0.5 rounded font-bold">${song.score} ★</span>
+                            </div>
+                            <h3 class="font-bold text-sm text-white truncate">${song.title}</h3>
+                            <p class="text-xs text-[#9ab] truncate mt-0.5">${song.artist}</p>
+                        </div>
+                        <div class="flex justify-between items-center mt-3 pt-2 border-t border-[#455565]/40 text-[11px] text-[#9ab]">
+                            <span class="text-amber-400">${song.rating}</span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function renderArtists(list) {
+            const grid = document.getElementById('artistsGrid');
+            grid.innerHTML = '';
+            list.forEach(artist => {
+                grid.innerHTML += `
+                    <div onclick="filterByArtist('${artist.name}')" class="lb-card rounded-xl p-4 flex flex-col items-center text-center cursor-pointer group">
+                        <img src="${artist.image}" alt="${artist.name}" class="w-28 h-28 rounded-full object-cover border-2 border-[#455565] group-hover:border-[#00b020] transition mb-3 shadow-md">
+                        <h3 class="font-bold text-sm text-white group-hover:text-[#00b020] transition">${artist.name}</h3>
+                        <p class="text-[11px] text-[#9ab] line-clamp-2 mt-1">${artist.bio}</p>
+                    </div>
+                `;
+            });
+        }
+
+        function filterByArtist(artistName) {
+            const filtered = songsData.filter(s => s.artist.toLowerCase().includes(artistName.toLowerCase()));
+            switchTab('home');
+            renderSongs(filtered);
+        }
+
+        function renderReviews() {
+            const feed = document.getElementById('reviewsFeed');
+            feed.innerHTML = '';
+            reviewsData.forEach(rev => {
+                feed.innerHTML += `
+                    <div class="bg-[#2c3440] border border-[#455565] rounded-xl p-4 space-y-2">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="font-bold text-white">@${rev.user} قيّم <strong class="text-[#00b020]">${rev.song}</strong> لـ ${rev.artist}</span>
+                            <span class="text-amber-400">${rev.stars}</span>
+                        </div>
+                        <p class="text-sm text-[#9ab] bg-[#14181c]/60 p-3 rounded-lg border border-[#455565]/40">"${rev.text}"</p>
+                        <div class="text-[10px] text-gray-500 text-left">${rev.date}</div>
+                    </div>
+                `;
+            });
+        }
+
+        function openSongDetail(id) {
+            const song = songsData.find(s => s.id === id);
+            if(!song) return;
+            activeSongDetail = song;
+
+            document.getElementById('homeTab').classList.add('hidden');
+            document.getElementById('artistsTab').classList.add('hidden');
+            document.getElementById('friendsTab').classList.add('hidden');
+            document.getElementById('reviewsTab').classList.add('hidden');
+            document.getElementById('songDetailView').classList.remove('hidden');
+
+            document.getElementById('detailPoster').src = song.poster;
+            document.getElementById('detailTitle').innerText = song.title;
+            document.getElementById('detailArtist').innerText = song.artist;
+            document.getElementById('detailRating').innerText = song.score + ' / 5.0';
+            document.getElementById('detailDesc').innerText = song.desc;
+
+            const songRevList = document.getElementById('songReviewsList');
+            songRevList.innerHTML = '';
+            const filtered = reviewsData.filter(r => r.song === song.title);
+            if(filtered.length === 0) {
+                songRevList.innerHTML = `<p class="text-xs text-[#9ab]">لا توجد مراجعات لهذه الأغنية بعد.</p>`;
+            } else {
+                filtered.forEach(r => {
+                    songRevList.innerHTML += `
+                        <div class="bg-[#2c3440] border border-[#455565] rounded-xl p-3 text-xs space-y-1">
+                            <div class="flex justify-between font-bold text-white">
+                                <span>@${r.user}</span>
+                                <span class="text-amber-400">${r.stars}</span>
+                            </div>
+                            <p class="text-[#9ab]">${r.text}</p>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        function handleSearch(query) {
+            if(!query.trim()) {
+                renderSongs(songsData);
+                return;
+            }
+            const q = query.toLowerCase();
+            const filtered = songsData.filter(s => s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q));
+            renderSongs(filtered);
+            switchTab('home');
+        }
+
+        // Modals Control
+        function openAuthModal() { document.getElementById('authModal').classList.remove('hidden'); }
+        function closeAuthModal() { document.getElementById('authModal').classList.add('hidden'); }
+        
+        function openRateModal() {
+            if(!currentUser) {
+                alert('الرجاء تسجيل الدخول أولاً لتتمكن من تقييم الأغاني.');
+                openAuthModal();
+                return;
+            }
+            document.getElementById('rateSongSelectContainer').classList.remove('hidden');
+            document.getElementById('rateModalTitle').innerText = 'تقييم أغنية جديدة';
+            document.getElementById('rateModal').classList.remove('hidden');
+        }
+
+        function openRateModalForCurrent() {
+            if(!currentUser) {
+                alert('الرجاء تسجيل الدخول أولاً.');
+                openAuthModal();
+                return;
+            }
+            document.getElementById('rateSongSelectContainer').classList.add('hidden');
+            document.getElementById('rateModalTitle').innerText = `تقييم: ${activeSongDetail.title}`;
+            document.getElementById('rateModal').classList.remove('hidden');
+        }
+
+        function closeRateModal() { document.getElementById('rateModal').classList.add('hidden'); }
+
+        function openAddFriendModal() {
+            if(!currentUser) {
+                alert('الرجاء تسجيل الدخول أولاً.');
+                openAuthModal();
+                return;
+            }
+            document.getElementById('addFriendModal').classList.remove('hidden');
+        }
+        function closeAddFriendModal() { document.getElementById('addFriendModal').classList.add('hidden'); }
+
+        function handleAuth() {
+            const username = document.getElementById('authUsername').value.trim();
+            const email = document.getElementById('authEmail').value.trim();
+            if(!username) {
+                alert('الرجاء إدخال اسم المستخدم (اليوزر).');
+                return;
+            }
+            currentUser = { username, email, avatar: '🎧' };
+            localStorage.setItem('naghma_active_user', JSON.stringify(currentUser));
+            closeAuthModal();
+            updateUserUI();
+            alert(`أهلاً بك يا @${username} في منصة نغمة!`);
+        }
+
+        function populateModalSongSelect() {
+            const select = document.getElementById('modalSongSelect');
+            select.innerHTML = '';
+            songsData.forEach(s => {
+                select.innerHTML += `<option value="${s.id}">${s.title} - ${s.artist}</option>`;
+            });
+        }
+
+        function submitReview() {
+            const stars = document.getElementById('modalStars').value;
+            const text = document.getElementById('modalReviewText').value.trim();
+            if(!text) {
+                alert('الرجاء كتابة رأيك الفني.');
+                return;
+            }
+
+            let targetSong;
+            const isDetail = !document.getElementById('rateSongSelectContainer').classList.contains('hidden');
+            if(isDetail) {
+                const songId = document.getElementById('modalSongSelect').value;
+                targetSong = songsData.find(s => s.id == songId);
+            } else {
+                targetSong = activeSongDetail;
+            }
+
+            const newRev = {
+                user: currentUser.username,
+                song: targetSong.title,
+                artist: targetSong.artist,
+                stars: stars,
+                text: text,
+                date: "الآن"
+            };
+
+            reviewsData.unshift(newRev);
+            localStorage.setItem('naghma_reviews', JSON.stringify(reviewsData));
+            closeRateModal();
+            renderReviews();
+            if(activeSongDetail && activeSongDetail.title === targetSong.title) {
+                openSongDetail(targetSong.id);
+            }
+            alert('تم نشر تقييمك بنجاح!');
+        }
+
+        function sendFriendRequest() {
+            const friendUser = document.getElementById('friendUsernameInput').value.trim().replace('@', '');
+            if(!friendUser) return;
+            if(friendUser === currentUser.username) {
+                alert('لا يمكنك إضافة نفسك كصديق!');
+                return;
+            }
+
+            let usersDB = JSON.parse(localStorage.getItem('naghma_social_db') || '{}');
+            if(!usersDB[currentUser.username]) usersDB[currentUser.username] = { friends: [], requests: [] };
+            if(!usersDB[friendUser]) usersDB[friendUser] = { friends: [], requests: [] };
+
+            usersDB[friendUser].requests.push({ from: currentUser.username, date: 'اليوم' });
+            localStorage.setItem('naghma_social_db', JSON.stringify(usersDB));
+            
+            closeAddFriendModal();
+            alert(`تم إرسال طلب الصداقة إلى @${friendUser} بنجاح!`);
+        }
+
+        function loadUserData() {
+            if(!currentUser) return;
+            let usersDB = JSON.parse(localStorage.getItem('naghma_social_db') || '{}');
+            let myData = usersDB[currentUser.username] || { friends: [], requests: [] };
+
+            const reqContainer = document.getElementById('incomingRequestsContainer');
+            document.getElementById('requestsCountBadge').innerText = myData.requests.length;
+            if(myData.requests.length === 0) {
+                reqContainer.innerHTML = `<p class="text-xs text-[#9ab] text-center py-3">لا توجد طلبات صداقة واردة حالياً.</p>`;
+            } else {
+                reqContainer.innerHTML = '';
+                myData.requests.forEach((req, idx) => {
+                    reqContainer.innerHTML += `
+                        <div class="flex justify-between items-center bg-[#14181c] p-3 rounded-lg border border-[#455565]">
+                            <span class="text-xs font-bold text-white">@${req.from} يود مصادقتك ومشاركة الموسيقى معك</span>
+                            <div class="flex gap-2">
+                                <button onclick="acceptFriend('${req.from}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded text-[11px] font-bold cursor-pointer">قبول</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            const friendsContainer = document.getElementById('friendsListContainer');
+            if(myData.friends.length === 0) {
+                friendsContainer.innerHTML = `<p class="text-xs text-[#9ab]">لم تقم بإضافة أصدقاء بعد. ابحث عنهم باليوزر!</p>`;
+            } else {
+                friendsContainer.innerHTML = '';
+                myData.friends.forEach(f => {
+                    friendsContainer.innerHTML += `
+                        <div class="bg-[#2c3440] border border-[#455565] p-3 rounded-xl flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <span class="text-2xl">🎧</span>
+                                <div>
+                                    <h4 class="text-sm font-bold text-white">@${f}</h4>
+                                    <p class="text-[10px] text-[#00b020]">متصل • يستمع للموسيقى الآن</p>
+                                </div>
+                            </div>
+                            <span class="text-xs text-amber-400 font-bold">صديق مضاف</span>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        function acceptFriend(fromUser) {
+            let usersDB = JSON.parse(localStorage.getItem('naghma_social_db') || '{}');
+            let myData = usersDB[currentUser.username];
+            
+            myData.requests = myData.requests.filter(r => r.from !== fromUser);
+            if(!myData.friends.includes(fromUser)) myData.friends.push(fromUser);
+
+            if(!usersDB[fromUser]) usersDB[fromUser] = { friends: [], requests: [] };
+            if(!usersDB[fromUser].friends.includes(currentUser.username)) usersDB[fromUser].friends.push(currentUser.username);
+
+            localStorage.setItem('naghma_social_db', JSON.stringify(usersDB));
+            loadUserData();
+            alert(`تم قبول طلب الصداقة مع @${fromUser} بنجاح!`);
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
