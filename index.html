@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Tajawal', sans-serif; background-color: #0b0f19; color: #fff; }
+        .avatar-selected { border-color: #a855f7 !important; background-color: rgba(168, 85, 247, 0.2); }
     </style>
 </head>
 <body class="min-h-screen bg-slate-950 text-slate-100 pb-12">
@@ -37,7 +38,7 @@
     <!-- Main Container -->
     <main class="max-w-6xl mx-auto px-4 pt-8">
         
-        <!-- قسم الرئيسية -->
+        <!-- قسم الرئيسية (ألبومات منوعة مجهزة مسبقاً) -->
         <div id="homeSection" class="space-y-6">
             <header class="mb-6 text-right">
                 <h1 class="text-3xl font-bold mb-2">أحدث الألبومات المقيّمة</h1>
@@ -45,7 +46,8 @@
             </header>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="albumsGrid">
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between">
+                <!-- ألبوم 1 -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between hover:border-slate-700 transition">
                     <div>
                         <div class="h-48 bg-slate-800 rounded-xl mb-4 flex items-center justify-center text-4xl shadow-inner">🎷</div>
                         <div class="flex justify-between items-start mb-2">
@@ -55,34 +57,103 @@
                             </div>
                             <span class="text-amber-400 font-bold text-sm">★ 4.8</span>
                         </div>
-                        <p class="text-slate-300 text-sm mt-3 bg-slate-950/50 p-3 rounded-lg border border-slate-800/50">"ألبوم جاز وفانك أسطوري، الإيقاع ممتاز جداً."</p>
+                        <p class="text-slate-300 text-sm mt-3 bg-slate-950/50 p-3 rounded-lg border border-slate-800/50">"ألبوم جاز وفانك أسطوري، الإيقاع ممتاز جداً وخرافي بالعزف."</p>
+                    </div>
+                </div>
+                <!-- ألبوم 2 -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between hover:border-slate-700 transition">
+                    <div>
+                        <div class="h-48 bg-slate-800 rounded-xl mb-4 flex items-center justify-center text-4xl shadow-inner">🎸</div>
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <h2 class="text-xl font-bold">After Hours</h2>
+                                <p class="text-sm text-slate-400">The Weeknd</p>
+                            </div>
+                            <span class="text-amber-400 font-bold text-sm">★ 4.9</span>
+                        </div>
+                        <p class="text-slate-300 text-sm mt-3 bg-slate-950/50 p-3 rounded-lg border border-slate-800/50">"تحفة بوب سينثويف ليلي، الأغاني فيها أتموسفير عجيب."</p>
+                    </div>
+                </div>
+                <!-- ألبوم 3 -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between hover:border-slate-700 transition">
+                    <div>
+                        <div class="h-48 bg-slate-800 rounded-xl mb-4 flex items-center justify-center text-4xl shadow-inner">🎵</div>
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <h2 class="text-xl font-bold">Duvet</h2>
+                                <p class="text-sm text-slate-400">bôa</p>
+                            </div>
+                            <span class="text-amber-400 font-bold text-sm">★ 4.7</span>
+                        </div>
+                        <p class="text-slate-300 text-sm mt-3 bg-slate-950/50 p-3 rounded-lg border border-slate-800/50">"روك هادئ وجميل، الجيتار فيه يطير العقل."</p>
+                    </div>
+                </div>
+                <!-- ألبوم 4 -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between hover:border-slate-700 transition">
+                    <div>
+                        <div class="h-48 bg-slate-800 rounded-xl mb-4 flex items-center justify-center text-4xl shadow-inner">🎧</div>
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <h2 class="text-xl font-bold">IGOR</h2>
+                                <p class="text-sm text-slate-400">Tyler, The Creator</p>
+                            </div>
+                            <span class="text-amber-400 font-bold text-sm">★ 5.0</span>
+                        </div>
+                        <p class="text-slate-300 text-sm mt-3 bg-slate-950/50 p-3 rounded-lg border border-slate-800/50">"إنتاج موسيقي فلكي وتوزيع غير تقليدي، ألبوم يدرس."</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- قسم الأصدقاء -->
-        <div id="friendsSection" class="space-y-6 hidden">
+        <!-- قسم الأصدقاء وطلبات الإضافة الواردة -->
+        <div id="friendsSection" class="space-y-8 hidden">
             <header class="mb-6 text-right flex justify-between items-center flex-wrap gap-4">
                 <div>
-                    <h1 class="text-3xl font-bold mb-2">نشاط الأصدقاء</h1>
-                    <p class="text-slate-400">ابحث عن أصدقائك بـ اليوزر نيم وتابع تقييماتهم الموسيقية.</p>
+                    <h1 class="text-3xl font-bold mb-2">الأصدقاء والنشاط</h1>
+                    <p class="text-slate-400">تابع أصدقاءك، أضفهم باليوزر، وتابع الطلبات الواردة.</p>
                 </div>
                 <button onclick="openAddFriendModal()" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-xl text-sm font-bold transition cursor-pointer">+ إضافة صديق باليوزر</button>
             </header>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="friendsFeedGrid">
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between">
-                    <div>
-                        <div class="flex items-center gap-3 mb-4 border-b border-slate-800 pb-3">
-                            <div class="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-lg">🎧</div>
+            <!-- صندوق طلبات الإضافة الواردة -->
+            <div class="bg-slate-900 border border-purple-900/50 rounded-2xl p-5 shadow-lg">
+                <h3 class="text-lg font-bold mb-3 text-purple-300 flex items-center gap-2">
+                    📥 طلبات الصداقة الواردة 
+                    <span id="requestsCountBadge" class="bg-purple-600 text-xs px-2 py-0.5 rounded-full">1</span>
+                </h3>
+                <div id="incomingRequestsContainer" class="space-y-3">
+                    <div id="requestItem-1" class="bg-slate-950 border border-slate-800 p-3 rounded-xl flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-full bg-purple-600 flex items-center justify-center font-bold text-sm">🎸</div>
                             <div>
-                                <h3 class="font-bold text-sm">@faisal_m</h3>
-                                <span class="text-xs text-slate-400">صديق مقرب</span>
+                                <h4 class="font-bold text-sm">@faisal_m</h4>
+                                <span class="text-xs text-slate-400">يرغب في إضافتك لقائمة أصدقائه</span>
                             </div>
                         </div>
-                        <h4 class="text-lg font-bold text-purple-300">Blinding Lights - The Weeknd</h4>
-                        <p class="text-slate-300 text-sm mt-2 bg-slate-950/50 p-3 rounded-lg border border-slate-800/50">"الأغنية ذي فيها فايبرز وسينثات خرافية بالليل!"</p>
+                        <div class="flex gap-2">
+                            <button onclick="acceptFriendRequest('faisal_m')" class="bg-green-600 hover:bg-green-500 px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition">قبول</button>
+                            <button onclick="rejectFriendRequest('requestItem-1')" class="bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition">رفض</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- قائمة الأصدقاء والنشاط -->
+            <div>
+                <h3 class="text-xl font-bold mb-4">أصدقاؤك المضافون</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="friendsFeedGrid">
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-3 mb-4 border-b border-slate-800 pb-3">
+                                <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-lg">🎧</div>
+                                <div>
+                                    <h3 class="font-bold text-sm">@sultan_dev</h3>
+                                    <span class="text-xs text-slate-400">صديق مقرب</span>
+                                </div>
+                            </div>
+                            <h4 class="text-lg font-bold text-purple-300">Blinding Lights - The Weeknd</h4>
+                            <p class="text-slate-300 text-sm mt-2 bg-slate-950/50 p-3 rounded-lg border border-slate-800/50">"الأغنية ذي فيها فايبرز وسينثات خرافية بالليل!"</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -90,7 +161,7 @@
 
     </main>
 
-    <!-- Modal 1: تسجيل الدخول بالإيميل -->
+    <!-- Modal 1: تسجيل الدخول -->
     <div id="authModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6">
             <h3 class="text-xl font-bold mb-2">تسجيل الدخول إلى نغمة</h3>
@@ -101,42 +172,42 @@
                     <input type="email" id="userEmail" placeholder="name@example.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm focus:outline-none focus:border-purple-500">
                 </div>
                 <div class="flex gap-3 pt-2">
-                    <button onclick="startAuthProcess()" class="flex-1 bg-gradient-to-r from-pink-600 to-purple-600 py-2.5 rounded-xl text-sm font-bold cursor-pointer">متابعة</button>
+                    <button onclick="startAuthProcess()" class="flex-1 bg-gradient-to-r from-pink-600 to-purple-600 py-2.5 rounded-xl text-sm font-bold cursor-pointer">متابعة ودخول</button>
                     <button onclick="closeAuthModal()" class="px-4 bg-slate-800 rounded-xl text-sm font-bold cursor-pointer">إلغاء</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal 2: إعداد اليوزر والصورة الرمزية (يظهر فور الدخول) -->
+    <!-- Modal 2: إعداد اليوزر والصورة الرمزية (يظهر مرة واحدة فقط للحساب الجديد) -->
     <div id="profileSetupModal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
         <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 text-right">
             <h3 class="text-xl font-bold mb-1">تخصيص ملفك الشخصي 🎵</h3>
-            <p class="text-xs text-slate-400 mb-4">اختر اليوزر نيم الخاص بك وصورتك الرمزية ليجدك أصدقاؤك.</p>
+            <p class="text-xs text-slate-400 mb-4">اختر اليوزر نيم الخاص بك وصورتك الرمزية ليجدك أصدقاؤك (بحد أقصى 30 حرف).</p>
             
             <div class="space-y-5">
                 <div>
-                    <label class="block text-xs text-slate-400 mb-1">اسم المستخدم (اليوزر) - أقصى حد 30 حرف</label>
-                    <div class="relative">
-                        <span class="absolute right-3 top-3 text-slate-500 text-sm">@</span>
-                        <input type="text" id="usernameInput" maxlength="30" placeholder="mohsen_marwi" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 pr-8 text-sm focus:outline-none focus:border-purple-500">
+                    <label class="block text-xs text-slate-400 mb-1">اسم المستخدم (اليوزر)</label>
+                    <div class="relative flex items-center">
+                        <span class="absolute left-3 text-slate-500 text-sm">@</span>
+                        <input type="text" id="usernameInput" maxlength="30" dir="ltr" placeholder="mohsen_marwi" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 pl-8 text-sm text-left focus:outline-none focus:border-purple-500">
                     </div>
                 </div>
 
                 <div>
                     <label class="block text-xs text-slate-400 mb-2">اختر صورة رمزية جاهزة:</label>
                     <div class="flex gap-3 justify-center mb-3">
-                        <button onclick="selectAvatarEmoji('🎵')" class="avatar-option w-12 h-12 rounded-xl bg-slate-800 text-2xl border border-slate-700 hover:border-purple-500 flex items-center justify-center">🎵</button>
-                        <button onclick="selectAvatarEmoji('🎸')" class="avatar-option w-12 h-12 rounded-xl bg-slate-800 text-2xl border border-slate-700 hover:border-purple-500 flex items-center justify-center">🎸</button>
-                        <button onclick="selectAvatarEmoji('🎧')" class="avatar-option w-12 h-12 rounded-xl bg-slate-800 text-2xl border border-slate-700 hover:border-purple-500 flex items-center justify-center">🎧</button>
-                        <button onclick="selectAvatarEmoji('🎷')" class="avatar-option w-12 h-12 rounded-xl bg-slate-800 text-2xl border border-slate-700 hover:border-purple-500 flex items-center justify-center">🎷</button>
+                        <button onclick="selectAvatarEmoji('🎵', this)" class="avatar-btn w-12 h-12 rounded-xl bg-slate-800 text-2xl border border-slate-700 hover:border-purple-500 flex items-center justify-center cursor-pointer transition">🎵</button>
+                        <button onclick="selectAvatarEmoji('🎸', this)" class="avatar-btn w-12 h-12 rounded-xl bg-slate-800 text-2xl border border-slate-700 hover:border-purple-500 flex items-center justify-center cursor-pointer transition">🎸</button>
+                        <button onclick="selectAvatarEmoji('🎧', this)" class="avatar-btn w-12 h-12 rounded-xl bg-slate-800 text-2xl border border-slate-700 hover:border-purple-500 flex items-center justify-center cursor-pointer transition avatar-selected">🎧</button>
+                        <button onclick="selectAvatarEmoji('🎷', this)" class="avatar-btn w-12 h-12 rounded-xl bg-slate-800 text-2xl border border-slate-700 hover:border-purple-500 flex items-center justify-center cursor-pointer transition">🎷</button>
                     </div>
 
                     <label class="block text-xs text-slate-400 mb-1">أو ارفع صورة من ألبوم صورك:</label>
-                    <input type="file" id="avatarFileInput" accept="image/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-purple-900/40 file:text-purple-300 hover:file:bg-purple-900/60">
+                    <input type="file" id="avatarFileInput" accept="image/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-purple-900/40 file:text-purple-300 hover:file:bg-purple-900/60 cursor-pointer">
                 </div>
 
-                <button onclick="saveUserProfile()" class="w-full bg-gradient-to-r from-pink-600 to-purple-600 py-3 rounded-xl text-sm font-bold cursor-pointer hover:opacity-90 transition">حفظ والبدء في نغمة</button>
+                <button onclick="saveUserProfile()" class="w-full bg-gradient-to-r from-pink-600 to-purple-600 py-3 rounded-xl text-sm font-bold cursor-pointer hover:opacity-90 transition">حفظ والانطلاق</button>
             </div>
         </div>
     </div>
@@ -163,12 +234,12 @@
         <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6">
             <h3 class="text-xl font-bold mb-4">إضافة صديق بـ اليوزر نيم</h3>
             <div class="space-y-4">
-                <div class="relative">
-                    <span class="absolute right-3 top-3 text-slate-500 text-sm">@</span>
-                    <input type="text" id="friendUsernameInput" maxlength="30" placeholder="اكتب يوزر صديقك هنا" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 pr-8 text-sm focus:outline-none focus:border-purple-500">
+                <div class="relative flex items-center">
+                    <span class="absolute left-3 text-slate-500 text-sm">@</span>
+                    <input type="text" id="friendUsernameInput" maxlength="30" dir="ltr" placeholder="friend_username" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 pl-8 text-sm text-left focus:outline-none focus:border-purple-500">
                 </div>
                 <div class="flex gap-3 pt-2">
-                    <button onclick="saveFriendByUsername()" class="flex-1 bg-indigo-600 py-2.5 rounded-xl text-sm font-bold cursor-pointer">إضافة للقائمة</button>
+                    <button onclick="sendFriendRequest()" class="flex-1 bg-indigo-600 py-2.5 rounded-xl text-sm font-bold cursor-pointer">إرسال طلب صُداقة</button>
                     <button onclick="closeAddFriendModal()" class="px-4 bg-slate-800 rounded-xl text-sm font-bold cursor-pointer">إلغاء</button>
                 </div>
             </div>
@@ -205,54 +276,65 @@
         function closeAddFriendModal() { document.getElementById('addFriendModal').classList.add('hidden'); }
 
         function startAuthProcess() {
-            const email = document.getElementById('userEmail').value;
+            const email = document.getElementById('userEmail').value.trim();
             if(!email) return alert('يرجى كتابة البريد الإلكتروني أولاً');
             
-            localStorage.setItem('naghma_email', email);
             closeAuthModal();
 
-            const existingUser = localStorage.getItem('naghma_user_data');
-            if(!existingUser) {
+            // فحص هل البريد مخزن مسبقاً ولديه بروفايل وحفظ سابق
+            const savedData = localStorage.getItem('naghma_user_' + email);
+            if(!savedData) {
+                // حساب جديد: نطلب منه إعداد اليوزر والصورة مرة واحدة فقط
+                localStorage.setItem('temp_current_email', email);
                 document.getElementById('profileSetupModal').classList.remove('hidden');
             } else {
-                updateUIWithUser(JSON.parse(existingUser));
-                alert('أهلاً بعودتك!');
+                // حساب مسجل مسبقاً: نسجله دخول مباشرة ونسترجع بياناته المحفوظة بالكامل
+                const userData = JSON.parse(savedData);
+                localStorage.setItem('naghma_active_user', JSON.stringify(userData));
+                updateUIWithUser(userData);
+                alert('أهلاً بك مجدداً يا ' + userData.username + '!');
             }
         }
 
-        function selectAvatarEmoji(emoji) {
+        function selectAvatarEmoji(emoji, btnElement) {
             selectedAvatarData = emoji;
-            alert('تم اختيار الرمز: ' + emoji);
+            document.querySelectorAll('.avatar-btn').forEach(btn => btn.classList.remove('avatar-selected'));
+            btnElement.classList.add('avatar-selected');
         }
 
         function saveUserProfile() {
             let username = document.getElementById('usernameInput').value.trim();
             if(!username) return alert('يرجى كتابة اليوزر نيم الخاص بك');
-            
             if(username.startsWith('@')) username = username.substring(1);
+
+            const email = localStorage.getItem('temp_current_email') || 'user@naghma.app';
 
             const fileInput = document.getElementById('avatarFileInput');
             if(fileInput.files && fileInput.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    finalizeProfileSave(username, e.target.result, true);
+                    finalizeProfileSave(email, username, e.target.result, true);
                 };
                 reader.readAsDataURL(fileInput.files[0]);
             } else {
-                finalizeProfileSave(username, selectedAvatarData, false);
+                finalizeProfileSave(email, username, selectedAvatarData, false);
             }
         }
 
-        function finalizeProfileSave(username, avatarVal, isImage) {
+        function finalizeProfileSave(email, username, avatarVal, isImage) {
             const userData = {
+                email: email,
                 username: username,
                 avatar: avatarVal,
                 isImage: isImage
             };
-            localStorage.setItem('naghma_user_data', JSON.stringify(userData));
+            // حفظ بيانات البروفايل مرتبطة بالإيميل وبشكل دائم
+            localStorage.setItem('naghma_user_' + email, JSON.stringify(userData));
+            localStorage.setItem('naghma_active_user', JSON.stringify(userData));
+            
             document.getElementById('profileSetupModal').classList.add('hidden');
             updateUIWithUser(userData);
-            alert('تم إنشاء حسابك بنجاح! يوزرك هو: @' + username);
+            alert('تم إنشاء حسابك وحفظ بياناتك بنجاح! يوزرك هو: @' + username);
         }
 
         function updateUIWithUser(user) {
@@ -271,8 +353,7 @@
             const authBtn = document.getElementById('authNavBtn');
             authBtn.innerText = 'خروج';
             authBtn.onclick = function() {
-                localStorage.removeItem('naghma_user_data');
-                localStorage.removeItem('naghma_email');
+                localStorage.removeItem('naghma_active_user');
                 window.location.reload();
             };
         }
@@ -287,7 +368,7 @@
 
             const grid = document.getElementById('albumsGrid');
             const card = `
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between">
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between hover:border-slate-700 transition">
                     <div>
                         <div class="h-48 bg-slate-800 rounded-xl mb-4 flex items-center justify-center text-4xl shadow-inner">💿</div>
                         <div class="flex justify-between items-start mb-2">
@@ -306,36 +387,50 @@
             alert('تم نشر التقييم بنجاح في الصفحة الرئيسية!');
         }
 
-        function saveFriendByUsername() {
+        function sendFriendRequest() {
             let uName = document.getElementById('friendUsernameInput').value.trim();
             if(!uName) return alert('يرجى كتابة يوزر صديقك');
             if(uName.startsWith('@')) uName = uName.substring(1);
+
+            closeAddFriendModal();
+            alert('تم إرسال طلب الصداقة إلى @' + uName + ' بنجاح!');
+        }
+
+        function acceptFriendRequest(friendName) {
+            document.getElementById('requestItem-1').remove();
+            document.getElementById('requestsCountBadge').innerText = '0';
 
             const feedGrid = document.getElementById('friendsFeedGrid');
             const friendCard = `
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between">
                     <div>
                         <div class="flex items-center gap-3 mb-4 border-b border-slate-800 pb-3">
-                            <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-sm">@</div>
+                            <div class="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center font-bold text-sm">🎸</div>
                             <div>
-                                <h3 class="font-bold text-sm">@${uName}</h3>
-                                <span class="text-xs text-slate-400">صديق مضاف حديثاً</span>
+                                <h3 class="font-bold text-sm">@${friendName}</h3>
+                                <span class="text-xs text-slate-400">صديق مقرب</span>
                             </div>
                         </div>
-                        <h4 class="text-lg font-bold text-purple-300">أحدث نشاط موسيقي</h4>
-                        <p class="text-slate-300 text-sm mt-2 bg-slate-950/50 p-3 rounded-lg border border-slate-800/50">"في انتظار أن يقوم @${uName} بمشاركة تقييمه الأول!"</p>
+                        <h4 class="text-lg font-bold text-purple-300">Starboy - The Weeknd</h4>
+                        <p class="text-slate-300 text-sm mt-2 bg-slate-950/50 p-3 rounded-lg border border-slate-800/50">"الألبوم هذا روقان وفيه بيس قوي جداً بالسيارة!"</p>
                     </div>
                 </div>
             `;
             feedGrid.insertAdjacentHTML('afterbegin', friendCard);
-            closeAddFriendModal();
-            alert('تمت إضافة الصديق @' + uName + ' بنجاح إلى قائمتك!');
+            alert('تم قبول طلب الصداقة وصار @' + friendName + ' في قائمتك!');
+        }
+
+        function rejectFriendRequest(elementId) {
+            document.getElementById(elementId).remove();
+            document.getElementById('requestsCountBadge').innerText = '0';
+            alert('تم رفض الطلب.');
         }
 
         window.onload = function() {
-            const savedData = localStorage.getItem('naghma_user_data');
-            if(savedData) {
-                updateUIWithUser(JSON.parse(savedData));
+            // التحقق من وجود جلسة نشطة ومحفوظة مسبقاً
+            const activeUser = localStorage.getItem('naghma_active_user');
+            if(activeUser) {
+                updateUIWithUser(JSON.parse(activeUser));
             }
         }
     </script>
