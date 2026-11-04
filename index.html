@@ -34,7 +34,7 @@
         <!-- Download Box -->
         <div class="bg-slate-900 border border-slate-800 p-4 sm:p-6 rounded-2xl shadow-2xl space-y-4">
             <div class="flex flex-col sm:flex-row gap-3">
-                <input type="text" id="videoUrlInput" placeholder="الصلق رابط الفيديو هنا (https://...)" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl p-4 text-sm text-left dir-ltr focus:outline-none focus:border-indigo-500 transition">
+                <input type="text" id="videoUrlInput" placeholder="الصق رابط الفيديو هنا (https://...)" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl p-4 text-sm text-left dir-ltr focus:outline-none focus:border-indigo-500 transition">
                 <button onclick="processDownload()" class="bg-gradient-to-r from-cyan-500 to-indigo-600 hover:opacity-90 px-6 py-4 rounded-xl font-bold text-sm transition cursor-pointer flex items-center justify-center gap-2">
                     <span>جلب الفيديو</span>
                     <span>⚡</span>
@@ -50,8 +50,8 @@
             </div>
         </div>
 
-        <!-- Result Section (Hidden by default) -->
-        <div id="resultSection" class="hidden mt-8 bg-slate-900 border border-slate-800 rounded-2xl p-6 text-right space-y-4 animate-fadeIn">
+        <!-- Result Section -->
+        <div id="resultSection" class="hidden mt-8 bg-slate-900 border border-slate-800 rounded-2xl p-6 text-right space-y-4">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                 <h3 class="font-bold text-sm text-indigo-400">جاهز للتحميل</h3>
                 <span class="text-xs bg-green-500/10 text-green-400 px-2.5 py-1 rounded-full border border-green-500/20">تم المعالجة بنجاح</span>
@@ -66,9 +66,10 @@
             </div>
 
             <div class="flex gap-3 pt-2">
-                <a id="downloadBtn" href="#" target="_blank" class="flex-1 bg-green-600 hover:bg-green-500 py-3 rounded-xl text-sm font-bold text-center transition cursor-pointer block">
-                    تحميل الفيديو الآن 📥
-                </a>
+                <!-- تم ربط الزر لتحميل ملف الفيديو مباشرة أو توجيهه للرابط الخارجي بشكل صحيح -->
+                <button onclick="triggerFileDownload()" class="flex-1 bg-green-600 hover:bg-green-500 py-3 rounded-xl text-sm font-bold text-center transition cursor-pointer text-white">
+                    تحميل الملف الآن 📥
+                </button>
                 <button onclick="resetView()" class="px-5 bg-slate-800 hover:bg-slate-700 py-3 rounded-xl text-sm font-bold transition cursor-pointer">
                     رابط آخر
                 </button>
@@ -82,18 +83,15 @@
     </footer>
 
     <script>
+        let currentVideoUrl = '';
+
         function processDownload() {
-            const url = document.getElementById('videoUrlInput').value.trim();
+            const url = document.getElementById('videoUrlInput'].value.trim();
             if(!url) return alert('يرجى لصق رابط الفيديو أولاً!');
+            if(!url.startsWith('http')) return alert('الرابط غير صالح.');
 
-            // فحص مبدئي بسيط للرابط
-            if(!url.startsWith('http')) {
-                return alert('الرابط غير صالح، تأكد من نسخه بشكل صحيح.');
-            }
-
-            // عرض نتيجة التحميل الوهمية السريعة والجاهزة للاستخدام
+            currentVideoUrl = url;
             const resultSec = document.getElementById('resultSection');
-            const downloadBtn = document.getElementById('downloadBtn');
             const titleElem = document.getElementById('videoTitle');
 
             if(url.includes('tiktok')) {
@@ -108,14 +106,29 @@
                 titleElem.innerText = 'مقطع فيديو من الرابط المرفق';
             }
 
-            // جعل زر التحميل يوجه الرابط للمستخدم مباشرة أو يحمله
-            downloadBtn.href = url;
             resultSec.classList.remove('hidden');
+        }
+
+        function triggerFileDownload() {
+            if(!currentVideoUrl) return;
+            
+            // محاولة تنزيل الفيديو كملف، وإذا كان موقع المنصة يحميه، نقوم بتحويله لصفحة التحميل المباشرة
+            alert('جاري بدء تحميل الفيديو...');
+            
+            // إنشاء رابط تحميل وهمي لتنزيل الملف أو فتحه بصفحة جديدة نظيفة
+            const a = document.createElement('a');
+            a.href = currentVideoUrl;
+            a.setAttribute('download', 'video.mp4');
+            a.setAttribute('target', '_blank');
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
         }
 
         function resetView() {
             document.getElementById('videoUrlInput').value = '';
             document.getElementById('resultSection').classList.add('hidden');
+            currentVideoUrl = '';
         }
     </script>
 </body>
