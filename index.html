@@ -9,20 +9,20 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Cairo', sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
 
     <!-- Navbar -->
-    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
+    <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-3 space-x-reverse">
-                <span class="text-2xl font-black text-rose-500">🎵 نغمة</span>
-                <span class="text-xs bg-rose-500/20 text-rose-400 px-2 py-1 rounded-full border border-rose-500/30">سحابي حقيقي</span>
+                <span class="text-2xl font-black text-rose-500 tracking-wider">🎵 نغمة</span>
+                <span class="text-xs bg-rose-500/20 text-rose-400 px-2.5 py-1 rounded-full border border-rose-500/30 font-bold">Letterboxd Style</span>
             </div>
             <div id="auth-nav" class="flex items-center gap-3">
-                <!-- سيتم تحديثه تلقائياً بناءً على حالة تسجيل الدخول -->
-                <button onclick="openAuthModal('login')" class="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition">تسجيل الدخول</button>
+                <button onclick="openAuthModal()" class="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition shadow-lg shadow-rose-600/20">تسجيل الدخول</button>
             </div>
         </div>
     </header>
@@ -30,45 +30,36 @@
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 py-8 flex-grow grid grid-cols-1 lg:grid-cols-3 gap-8 w-full">
         
-        <!-- قسم مكتبة الأغاني والتقييم (عمودين) -->
+        <!-- قسم مكتبة الأغاني بطابع Letterboxd (عمودين) -->
         <section class="lg:col-span-2 space-y-6">
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
-                <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
-                    <span>🎧</span> مكتبة الأغاني (التزامن السحابي)
-                </h2>
-                <div class="relative mb-4">
-                    <input type="text" id="search-input" placeholder="ابحث عن أغنية أو فنان..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rose-500 transition">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                    <div>
+                        <h2 class="text-xl font-extrabold flex items-center gap-2">
+                            <span>🎧</span> مكتبة الأغاني والموسيقى
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-1">قيم، استكشف، وشارك ذوقك الموسيقي مع أصدقائك</p>
+                    </div>
+                    <div class="relative w-full sm:w-64">
+                        <input type="text" id="search-input" oninput="filterSongs()" placeholder="ابحث عن أغنية أو فنان..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-rose-500 transition">
+                    </div>
                 </div>
-                <!-- قائمة الأغاني -->
-                <div id="songs-container" class="space-y-3 max-h-[600px] overflow-y-auto pr-2">
-                    <!-- يتم تعبئتها ديناميكياً -->
+
+                <!-- قائمة الأغاني (بوسترات Letterboxd) -->
+                <div id="songs-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[650px] overflow-y-auto pr-2">
+                    <!-- تعبئة ديناميكية -->
                 </div>
             </div>
         </section>
 
-        <!-- قسم المجتمع والأصدقاء (عمود واحد) -->
+        <!-- قسم المجتمع والنشاطات الحية (عمود واحد) -->
         <aside class="space-y-6">
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
                 <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
                     <span>🌍</span> نشاط المجتمع والتقييمات الحية
                 </h3>
-                <div id="community-feed" class="space-y-4 max-h-[300px] overflow-y-auto pr-2 text-sm">
+                <div id="community-feed" class="space-y-4 max-h-[500px] overflow-y-auto pr-2 text-sm">
                     <p class="text-slate-500 text-center py-4">جاري تحميل النشاطات السحابية...</p>
-                </div>
-            </div>
-
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
-                <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
-                    <span>👥</span> الأصدقاء والطلبات
-                </h3>
-                <div class="space-y-3">
-                    <div class="flex gap-2">
-                        <input type="text" id="friend-username" placeholder="اسم مستخدم الصديق..." class="flex-grow bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-rose-500">
-                        <button onclick="sendFriendRequest()" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-2 rounded-xl text-sm transition">إضافة</button>
-                    </div>
-                    <div id="friends-list" class="space-y-2 mt-4 text-sm text-slate-400">
-                        <p>سجل دخولك لعرض قائمة أصدقائك.</p>
-                    </div>
                 </div>
             </div>
         </aside>
@@ -83,17 +74,13 @@
             <div class="space-y-4">
                 <div>
                     <label class="block text-xs text-slate-400 mb-1">البريد الإلكتروني</label>
-                    <input type="email5" id="auth-email" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-rose-500">
+                    <input type="email" id="auth-email" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-rose-500">
                 </div>
                 <div>
                     <label class="block text-xs text-slate-400 mb-1">كلمة المرور</label>
                     <input type="password" id="auth-password" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-rose-500">
                 </div>
-                <div id="username-field" class="hidden">
-                    <label class="block text-xs text-slate-400 mb-1">اسم المستخدم (المجتمعي)</label>
-                    <input type="text" id="auth-username" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-rose-500">
-                </div>
-                <button onclick="handleAuthSubmit()" id="auth-submit-btn" class="w-full bg-rose-600 hover:bg-rose-700 text-white py-3 rounded-xl font-bold transition">دخول</button>
+                <button onclick="handleAuthSubmit()" id="auth-submit-btn" class="w-full bg-rose-600 hover:bg-rose-700 text-white py-3 rounded-xl font-bold transition shadow-lg shadow-rose-600/20">دخول</button>
                 <p class="text-center text-xs text-slate-400 mt-2">
                     <span id="auth-toggle-text">ليس لديك حساب؟</span> 
                     <button onclick="toggleAuthMode()" class="text-rose-400 hover:underline font-bold mr-1">أنشئ حساباً جديداً</button>
@@ -102,13 +89,12 @@
         </div>
     </div>
 
-    <!-- Firebase SDKs (Compat Version متوافقة تماماً وسهلة الاستخدام) -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
     <script>
-        // إعدادات Firebase الخاصة بك
         const firebaseConfig = {
             apiKey: "AIzaSyBBFGVlIWgRj_TQ_n_nEMo1KMPi3q8RWg8",
             authDomain: "naghma-c40ef.firebaseapp.com",
@@ -119,7 +105,6 @@
             measurementId: "G-K52Y5WFNR3"
         };
 
-        // تهيئة Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
@@ -127,51 +112,56 @@
         let currentUser = null;
         let isRegistering = false;
 
-        // عينة من مكتبة الأغاني (100 أغنية افتراضية كمثال)
-        const sampleSongs = Array.from({length: 100}, (_, i) => ({
+        // مكتبة الأغاني الافتراضية مع صور بوسترات فنية (Letterboxd Style)
+        const sampleSongs = Array.from({length: 20}, (_, i) => ({
             id: `song_${i+1}`,
-            title: `أغنية رقم ${i+1}`,
+            title: `أغنية نغمة العصر ${i+1}`,
             artist: `فنان عالمي ${i+1}`,
-            genre: i % 2 === 0 ? 'بوب / آندي' : 'هيب هوب / آر أند بي'
+            cover: `https://picsum.photos/seed/naghma${i+1}/200/200`
         }));
 
-        // مراقبة حالة المصادقة
         auth.onAuthStateChanged(async (user) => {
             currentUser = user;
             const nav = document.getElementById('auth-nav');
             if (user) {
-                // جلب اسم المستخدم من Firestore إذا أمكن
                 nav.innerHTML = `
-                    <span class="text-xs text-slate-300 hidden sm:inline">${user.email}</span>
+                    <span class="text-xs text-slate-300 hidden sm:inline font-semibold">${user.email.split('@')[0]}</span>
                     <button onclick="logout()" class="bg-slate-800 hover:bg-slate-700 text-rose-400 px-3 py-1.5 rounded-xl text-xs font-bold transition">خروج</button>
                 `;
                 loadCommunityFeed();
             } else {
-                nav.innerHTML = `<button onclick="openAuthModal('login')" class="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition">تسجيل الدخول</button>`;
+                nav.innerHTML = `<button onclick="openAuthModal()" class="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition shadow-lg shadow-rose-600/20">تسجيل الدخول</button>`;
             }
         });
 
-        function renderSongs() {
+        function renderSongs(songsToRender = sampleSongs) {
             const container = document.getElementById('songs-container');
-            container.innerHTML = sampleSongs.map(song => `
-                <div class="bg-slate-950/60 border border-slate-800/80 p-4 rounded-xl flex items-center justify-between hover:border-slate-700 transition">
-                    <div>
+            container.innerHTML = songsToRender.map(song => `
+                <div class="bg-slate-950/80 border border-slate-800/80 p-4 rounded-xl flex gap-4 items-center hover:border-slate-700 transition group">
+                    <img src="${song.cover}" alt="${song.title}" class="w-16 h-16 rounded-lg object-cover shadow-md group-hover:scale-105 transition">
+                    <div class="flex-grow">
                         <h4 class="font-bold text-sm text-slate-200">${song.title}</h4>
-                        <p class="text-xs text-slate-400">${song.artist} • <span class="text-rose-400">${song.genre}</span></p>
-                    </div>
-                    <div class="flex items-center gap-1">
-                        ${[1,2,3,4,5].map(star => `
-                            <button onclick="rateSong('${song.id}', ${star})" class="text-slate-600 hover:text-amber-400 transition text-lg">★</button>
-                        `).join('')}
+                        <p class="text-xs text-slate-400 mb-2">${song.artist}</p>
+                        <div class="flex items-center gap-1">
+                            ${[1,2,3,4,5].map(star => `
+                                <button onclick="rateSong('${song.id}', ${star})" class="text-slate-600 hover:text-amber-400 transition text-base">★</button>
+                            `).join('')}
+                        </div>
                     </div>
                 </div>
             `).join('');
         }
 
+        function filterSongs() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const filtered = sampleSongs.filter(s => s.title.toLowerCase().includes(query) || s.artist.toLowerCase().includes(query));
+            renderSongs(filtered);
+        }
+
         async function rateSong(songId, stars) {
             if (!currentUser) {
                 alert('يجب تسجيل الدخول لتقييم الأغاني وحفظها سحابياً!');
-                openAuthModal('login');
+                openAuthModal();
                 return;
             }
             try {
@@ -186,30 +176,35 @@
                 loadCommunityFeed();
             } catch (error) {
                 console.error(error);
-                alert('حدث خطأ أثناء حفظ التييم.');
+                alert('حدث خطأ أثناء حفظ التقييم.');
             }
         }
 
         async function loadCommunityFeed() {
             const feedContainer = document.getElementById('community-feed');
             try {
-                const snapshot = await db.collection('ratings').orderBy('timestamp', 'desc').limit(5).get();
+                const snapshot = await db.collection('ratings').orderBy('timestamp', 'desc').limit(6).get();
                 if (snapshot.empty) {
                     feedContainer.innerHTML = `<p class="text-slate-500 text-center">لا توجد تقييمات حديثة بعد.</p>`;
                     return;
                 }
                 feedContainer.innerHTML = snapshot.docs.map(doc => {
                     const data = doc.data();
+                    const song = sampleSongs.find(s => s.id === data.songId) || {title: data.songId};
                     return `
-                        قيم المستخدم (${data.userEmail ? data.userEmail.split('@')[0] : 'مستخدم'}) الأغنية <span class="text-rose-400">${data.songId}</span> بـ <span class="text-amber-400">${data.stars} نجوم</span>
+                        <div class="bg-slate-950/40 p-3 rounded-xl border border-slate-800/50">
+                            <span class="text-rose-400 font-bold">${data.userEmail ? data.userEmail.split('@')[0] : 'مستخدم'}</span> 
+                            تقييم لـ <span class="text-slate-200 font-semibold">${song.title}</span> 
+                            بـ <span class="text-amber-400 font-bold">${data.stars} ★</span>
+                        </div>
                     `;
-                }).join('<hr class="border-slate-800 my-2">');
+                }).join('');
             } catch (e) {
                 console.error(e);
             }
         }
 
-        function openAuthModal(mode) {
+        function openAuthModal() {
             document.getElementById('auth-modal').classList.remove('hidden');
             document.getElementById('auth-modal').classList.add('flex');
         }
@@ -222,8 +217,7 @@
         function toggleAuthMode() {
             isRegistering = !isRegistering;
             document.getElementById('modal-title').innerText = isRegistering ? 'إنشاء حساب جديد' : 'تسجيل الدخول';
-            document.getElementById('auth-submit-btn').innerText = isRegistering ? 'تسجيل وحفظ' : 'دخول';
-            document.getElementById('username-field').classList.toggle('hidden', !isRegistering);
+            document.getElementById('auth-submit-btn').innerText = isRegistering ? 'تسجيل وإرسال تحقق' : 'دخول';
             document.getElementById('auth-toggle-text').innerText = isRegistering ? 'لديك حساب بالفعل؟' : 'ليس لديك حساب؟';
         }
 
@@ -234,7 +228,8 @@
             try {
                 if (isRegistering) {
                     const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                    alert('تم إنشاء الحساب وتسجيل الدخول بنجاح!');
+                    await userCredential.user.sendEmailVerification();
+                    alert('تم إنشاء الحساب بنجاح! تم إرسال رابط تحقق إلى بريدك الإلكتروني.');
                 } else {
                     await auth.signInWithEmailAndPassword(email, password);
                     alert('تم تسجيل الدخول بنجاح!');
@@ -250,18 +245,6 @@
             alert('تم تسجيل الخروج بنجاح.');
         }
 
-        function sendFriendRequest() {
-            if (!currentUser) {
-                alert('يرجى تسجيل الدخول أولاً لإضافة أصدقاء.');
-                return;
-            }
-            const username = document.getElementById('friend-username').value;
-            if(!username) return alert('الرجاء كتابة اسم المستخدم.');
-            alert(`تم إرسال طلب صداقة إلى: ${username}`);
-            document.getElementById('friend-username').value = '';
-        }
-
-        // تشغيل العرض الأولي
         renderSongs();
     </script>
 </body>
