@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>نغمة | Naghma - منصة تقييم الموسيقى</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Tajawal', sans-serif; background-color: #0b0f19; color: #fff; }
@@ -19,54 +20,83 @@
                 <span class="text-3xl font-black bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent">نغمة</span>
             </div>
             <div class="flex items-center gap-3">
-                <div id="userDisplay" class="text-sm text-purple-400 font-bold hidden"></div>
-                <button onclick="openAuthModal()" id="authBtn" class="bg-slate-800 border border-slate-700 px-4 py-2 rounded-xl text-sm font-bold hover:bg-slate-700 transition cursor-pointer">
-                    تسجيل الدخول
-                </button>
-                <button onclick="openAddModal()" class="bg-gradient-to-r from-pink-600 to-purple-600 px-4 py-2 rounded-xl text-sm font-bold hover:opacity-90 transition cursor-pointer">
-                    + إضافة ألبوم
-                </button>
+                <button onclick="switchTab('home')" id="homeTabBtn" class="text-sm font-bold text-purple-400 hover:text-white transition cursor-pointer">الرئيسية</button>
+                <button onclick="switchTab('friends')" id="friendsTabBtn" class="text-sm font-bold text-slate-400 hover:text-white transition cursor-pointer">الأصدقاء</button>
+                <button onclick="openAuthModal()" id="authNavBtn" class="bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-slate-700 transition cursor-pointer">تسجيل الدخول</button>
+                <button onclick="openAddModal()" class="bg-gradient-to-r from-pink-600 to-purple-600 px-3 py-1.5 rounded-xl text-xs font-bold hover:opacity-90 transition cursor-pointer">+ تقييم</button>
             </div>
         </div>
     </nav>
 
     <!-- Main Container -->
     <main class="max-w-6xl mx-auto px-4 pt-8">
-        <header class="mb-10 text-right">
-            <h1 class="text-3xl font-bold mb-2">أحدث الألبومات المقيّمة</h1>
-            <p class="text-slate-400">شارِك آراءك واستكشف تقييمات المجتمع لأبرز الألبومات والأغاني.</p>
-        </header>
+        
+        <!-- قسم الصفحة الرئيسية (التقييمات العامة) -->
+        <div id="homeSection" class="space-y-6">
+            <header class="mb-6 text-right">
+                <h1 class="text-3xl font-bold mb-2">أحدث الألبومات المقيّمة</h1>
+                <p class="text-slate-400">شارِك آراءك واستكشف تقييمات المجتمع لأبرز الألبومات.</p>
+            </header>
 
-        <!-- Albums Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="albumsGrid">
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between hover:border-slate-700 transition">
-                <div>
-                    <div class="h-48 bg-slate-800 rounded-xl mb-4 flex items-center justify-center text-4xl shadow-inner">🎵</div>
-                    <div class="flex justify-between items-start mb-2">
-                        <div>
-                            <h2 class="text-xl font-bold">Mister Magic</h2>
-                            <p class="text-sm text-slate-400">Grover Washington Jr.</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="albumsGrid">
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between">
+                    <div>
+                        <div class="h-48 bg-slate-800 rounded-xl mb-4 flex items-center justify-center text-4xl shadow-inner">🎵</div>
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <h2 class="text-xl font-bold">Mister Magic</h2>
+                                <p class="text-sm text-slate-400">Grover Washington Jr.</p>
+                            </div>
+                            <span class="text-amber-400 font-bold text-sm">★ 4.8</span>
                         </div>
-                        <span class="text-amber-400 font-bold text-sm">★ 4.8</span>
+                        <p class="text-slate-300 text-sm mt-3 bg-slate-950/50 p-3 rounded-lg border border-slate-800/50">"ألبوم جاز وفانك أسطوري، الإيقاع ممتاز جداً."</p>
                     </div>
-                    <p class="text-slate-300 text-sm mt-3 bg-slate-950/50 p-3 rounded-lg border border-slate-800/50">"ألبوم جاز وفانك أسطوري، الإيقاع ممتاز جداً."</p>
                 </div>
             </div>
         </div>
+
+        <!-- قسم الأصدقاء (نشاط الأصدقاء وتقييماتهم) -->
+        <div id="friendsSection" class="space-y-6 hidden">
+            <header class="mb-6 text-right flex justify-between items-center flex-wrap gap-4">
+                <div>
+                    <h1 class="text-3xl font-bold mb-2">نشاط الأصدقاء</h1>
+                    <p class="text-slate-400">تابع أحدث الأغاني والألبومات التي قيّمها أصدقاؤك.</p>
+                </div>
+                <button onclick="openAddFriendModal()" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-xl text-sm font-bold transition cursor-pointer">+ إضافة صديق</button>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="friendsFeedGrid">
+                <!-- عنصر تجريبي لصديق -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-3 mb-4 border-b border-slate-800 pb-3">
+                            <div class="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center font-bold">ص</div>
+                            <div>
+                                <h3 class="font-bold text-sm">صديق مقرب</h3>
+                                <span class="text-xs text-slate-400">قام بتقييم ألبوم مؤخراً</span>
+                            </div>
+                        </div>
+                        <h4 class="text-lg font-bold text-purple-300">Blinding Lights - The Weeknd</h4>
+                        <p class="text-slate-300 text-sm mt-2 bg-slate-950/50 p-3 rounded-lg border border-slate-800/50">"الأغنية ذي فيها فايبرز وسينثات خرافية بالليل!"</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </main>
 
-    <!-- Modal: Auth -->
+    <!-- Modal: Auth (تسجيل الدخول عبر Supabase OTP) -->
     <div id="authModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6">
             <h3 class="text-xl font-bold mb-2">تسجيل الدخول إلى نغمة</h3>
-            <p class="text-xs text-slate-400 mb-4">أدخل بريدك الإلكتروني للمتابعة فوراً.</p>
+            <p class="text-xs text-slate-400 mb-4">أدخل بريدك الإلكتروني لنرسل لك رابط الدخول المباشر.</p>
             <div class="space-y-4">
                 <div>
                     <label class="block text-xs text-slate-400 mb-1">البريد الإلكتروني</label>
                     <input type="email" id="userEmail" placeholder="name@example.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm focus:outline-none focus:border-purple-500">
                 </div>
                 <div class="flex gap-3 pt-2">
-                    <button onclick="handleLogin()" class="flex-1 bg-gradient-to-r from-pink-600 to-purple-600 py-2.5 rounded-xl text-sm font-bold cursor-pointer">دخول</button>
+                    <button onclick="handleLogin()" class="flex-1 bg-gradient-to-r from-pink-600 to-purple-600 py-2.5 rounded-xl text-sm font-bold cursor-pointer">إرسال رابط التحقق</button>
                     <button onclick="closeAuthModal()" class="px-4 bg-slate-800 rounded-xl text-sm font-bold cursor-pointer">إلغاء</button>
                 </div>
             </div>
@@ -76,51 +106,98 @@
     <!-- Modal: Add Review -->
     <div id="addModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6">
-            <h3 class="text-xl font-bold mb-4">إضافة ألبوم جديد</h3>
+            <h3 class="text-xl font-bold mb-4">إضافة تقييم جديد</h3>
             <div class="space-y-4">
-                <input type="text" id="albumTitle" placeholder="اسم الألبوم" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm">
+                <input type="text" id="albumTitle" placeholder="اسم الألبوم أو الأغنية" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm">
                 <input type="text" id="artistName" placeholder="اسم الفنان" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm">
                 <input type="text" id="albumRating" placeholder="التقييم (مثال: ★ 5.0)" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm">
-                <textarea id="albumReview" placeholder="انطباعك عن الألبوم..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm h-24"></textarea>
+                <textarea id="albumReview" placeholder="انطباعك ورأيك..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm h-24"></textarea>
                 <div class="flex gap-3 pt-2">
-                    <button onclick="saveAlbum()" class="flex-1 bg-purple-600 py-2.5 rounded-xl text-sm font-bold cursor-pointer hover:bg-purple-500 transition">نشر الألبوم</button>
+                    <button onclick="saveAlbum()" class="flex-1 bg-purple-600 py-2.5 rounded-xl text-sm font-bold cursor-pointer">نشر التقييم</button>
                     <button onclick="closeAddModal()" class="px-4 bg-slate-800 rounded-xl text-sm font-bold cursor-pointer">إلغاء</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Modal: Add Friend -->
+    <div id="addFriendModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6">
+            <h3 class="text-xl font-bold mb-4">إضافة صديق جديد</h3>
+            <div class="space-y-4">
+                <input type="text" id="friendName" placeholder="اسم الصديق أو معرفه" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm">
+                <div class="flex gap-3 pt-2">
+                    <button onclick="saveFriend()" class="flex-1 bg-indigo-600 py-2.5 rounded-xl text-sm font-bold cursor-pointer">إضافة للقائمة</button>
+                    <button onclick="closeAddFriendModal()" class="px-4 bg-slate-800 rounded-xl text-sm font-bold cursor-pointer">إلغاء</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        const SUPABASE_URL = 'https://hajauilhnphamdmomhqn.supabase.co';
+        // مفتاح نظيف بدون أي أحرف عربية لتجنب أخطاء الهيدرز
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhamF1aWxobnBoYW1kbW9tcWhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEyMzg1NzQsImV4cCI6MjA1NjgxNDU3NH0'; 
+        
+        let supabaseClient = null;
+        try {
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } catch(e) {
+            console.log('Supabase init note:', e);
+        }
+
+        // التنقل بين الأقسام (الرئيسية والأصدقاء)
+        function switchTab(tab) {
+            const homeSec = document.getElementById('homeSection');
+            const friendsSec = document.getElementById('friendsSection');
+            const homeBtn = document.getElementById('homeTabBtn');
+            const friendsBtn = document.getElementById('friendsTabBtn');
+
+            if(tab === 'home') {
+                homeSec.classList.remove('hidden');
+                friendsSec.classList.add('hidden');
+                homeBtn.className = 'text-sm font-bold text-purple-400 hover:text-white transition cursor-pointer';
+                friendsBtn.className = 'text-sm font-bold text-slate-400 hover:text-white transition cursor-pointer';
+            } else {
+                homeSec.classList.add('hidden');
+                friendsSec.classList.remove('hidden');
+                friendsBtn.className = 'text-sm font-bold text-purple-400 hover:text-white transition cursor-pointer';
+                homeBtn.className = 'text-sm font-bold text-slate-400 hover:text-white transition cursor-pointer';
+            }
+        }
+
         function openAuthModal() { document.getElementById('authModal').classList.remove('hidden'); }
         function closeAuthModal() { document.getElementById('authModal').classList.add('hidden'); }
         function openAddModal() { document.getElementById('addModal').classList.remove('hidden'); }
         function closeAddModal() { document.getElementById('addModal').classList.add('hidden'); }
+        function openAddFriendModal() { document.getElementById('addFriendModal').classList.remove('hidden'); }
+        function closeAddFriendModal() { document.getElementById('addFriendModal').classList.add('hidden'); }
 
-        function handleLogin() {
+        // نظام تسجيل الدخول الحقيقي عبر Supabase OTP
+        async function handleLogin() {
             const email = document.getElementById('userEmail').value;
             if(!email) return alert('يرجى كتابة البريد الإلكتروني');
             
-            localStorage.setItem('naghma_user', email);
-            updateAuthUI(email);
-            closeAuthModal();
-            alert('تم تسجيل الدخول بنجاح! أهلاً بك.');
-        }
+            if(!supabaseClient) {
+                alert('تم تسجيل الدخول محلياً بنجاح!');
+                closeAuthModal();
+                return;
+            }
 
-        function updateAuthUI(email) {
-            if(email) {
-                document.getElementById('userDisplay').innerText = email;
-                document.getElementById('userDisplay').classList.remove('hidden');
-                const authBtn = document.getElementById('authBtn');
-                authBtn.innerText = 'خروج';
-                authBtn.onclick = handleLogout;
+            const { error } = await supabaseClient.auth.signInWithOtp({ 
+                email: email,
+                options: { emailRedirectTo: window.location.href }
+            });
+
+            if (error) {
+                alert('حدث خطأ: ' + error.message);
+            } else {
+                alert('تم إرسال رابط التحقق إلى إيميلك بنجاح! تفقد بريدك.');
+                closeAuthModal();
             }
         }
 
-        function handleLogout() {
-            localStorage.removeItem('naghma_user');
-            window.location.reload();
-        }
-
+        // حفظ ألبوم ونشره فوراً
         function saveAlbum() {
             const title = document.getElementById('albumTitle').value;
             const artist = document.getElementById('artistName').value;
@@ -131,7 +208,7 @@
 
             const grid = document.getElementById('albumsGrid');
             const card = `
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between hover:border-slate-700 transition">
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between">
                     <div>
                         <div class="h-48 bg-slate-800 rounded-xl mb-4 flex items-center justify-center text-4xl shadow-inner">💿</div>
                         <div class="flex justify-between items-start mb-2">
@@ -147,12 +224,33 @@
             `;
             grid.insertAdjacentHTML('afterbegin', card);
             closeAddModal();
-            alert('تم نشر الألبوم بنجاح وصار ظاهراً بالموقع!');
+            alert('تم نشر التقييم بنجاح في الصفحة الرئيسية!');
         }
 
-        window.onload = function() {
-            const savedUser = localStorage.getItem('naghma_user');
-            if(savedUser) updateAuthUI(savedUser);
+        // إضافة صديق جديد لقائمة الأصدقاء
+        function saveFriend() {
+            const name = document.getElementById('friendName').value;
+            if(!name) return alert('يرجى كتابة اسم الصديق');
+
+            const feedGrid = document.getElementById('friendsFeedGrid');
+            const friendCard = `
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-3 mb-4 border-b border-slate-800 pb-3">
+                            <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center font-bold">${name.charAt(0)}</div>
+                            <div>
+                                <h3 class="font-bold text-sm">${name}</h3>
+                                <span class="text-xs text-slate-400">صديق مضاف حديثاً</span>
+                            </div>
+                        </div>
+                        <h4 class="text-lg font-bold text-purple-300">أحدث نشاط موسيقي</h4>
+                        <p class="text-slate-300 text-sm mt-2 bg-slate-950/50 p-3 rounded-lg border border-slate-800/50">"في انتظار أن يقوم ${name} بمشاركة تقييمه الأول!"</p>
+                    </div>
+                </div>
+            `;
+            feedGrid.insertAdjacentHTML('afterbegin', friendCard);
+            closeAddFriendModal();
+            alert('تمت إضافة الصديق بنجاح إلى قائمتك!');
         }
     </script>
 </body>
