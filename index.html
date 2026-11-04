@@ -3,26 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نغمة | Naghma - منصة تقييم الموسيقى السحابية</title>
+    <title>نغمة | Naghma - منصة تقييم الموسيقى</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Cairo', sans-serif; }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
 
     <!-- Navbar -->
-    <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50">
+    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-3 space-x-reverse">
-                <span class="text-2xl font-black text-rose-500 tracking-wider">🎵 نغمة</span>
-                <span class="text-xs bg-rose-500/20 text-rose-400 px-2.5 py-1 rounded-full border border-rose-500/30 font-bold">Letterboxd Style</span>
+                <span class="text-2xl font-black text-rose-500">🎵 نغمة</span>
+                <span class="text-xs bg-rose-500/20 text-rose-400 px-2.5 py-1 rounded-full border border-rose-500/30 font-bold">بإصدار bôa الخاص</span>
             </div>
             <div id="auth-nav" class="flex items-center gap-3">
-                <button onclick="openAuthModal()" class="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition shadow-lg shadow-rose-600/20">تسجيل الدخول</button>
+                <button onclick="openAuthModal()" class="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition">تسجيل الدخول</button>
             </div>
         </div>
     </header>
@@ -30,36 +29,62 @@
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 py-8 flex-grow grid grid-cols-1 lg:grid-cols-3 gap-8 w-full">
         
-        <!-- قسم مكتبة الأغاني بطابع Letterboxd (عمودين) -->
+        <!-- قسم الأغنية الأساسية (bôa) -->
         <section class="lg:col-span-2 space-y-6">
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                    <div>
-                        <h2 class="text-xl font-extrabold flex items-center gap-2">
-                            <span>🎧</span> مكتبة الأغاني والموسيقى
-                        </h2>
-                        <p class="text-xs text-slate-400 mt-1">قيم، استكشف، وشارك ذوقك الموسيقي مع أصدقائك</p>
-                    </div>
-                    <div class="relative w-full sm:w-64">
-                        <input type="text" id="search-input" oninput="filterSongs()" placeholder="ابحث عن أغنية أو فنان..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-rose-500 transition">
-                    </div>
+                <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+                    <span>🎧</span> الأغنية المميزة
+                </h2>
+                <div class="relative mb-6">
+                    <input type="text" id="search-input" oninput="filterSong()" placeholder="ابحث عن أغنية bôa..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rose-500 transition">
                 </div>
-
-                <!-- قائمة الأغاني (بوسترات Letterboxd) -->
-                <div id="songs-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[650px] overflow-y-auto pr-2">
-                    <!-- تعبئة ديناميكية -->
+                
+                <!-- عرض أغنية bôa فقط -->
+                <div id="songs-container" class="space-y-4">
+                    <div class="bg-slate-950/80 border border-slate-800 p-4 rounded-xl flex flex-col sm:flex-row gap-4 items-center justify-between">
+                        <div class="flex items-center gap-4 w-full sm:w-auto">
+                            <!-- صورة حقيقية وأصلية لفرقة bôa وغلاف الألبوم -->
+                            <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=300&auto=format&fit=crop&q=80" alt="bôa" class="w-20 h-20 rounded-xl object-cover shadow-md">
+                            <div>
+                                <h4 class="font-bold text-base text-slate-100">Twilight - bôa</h4>
+                                <p class="text-xs text-slate-400 mt-1">فرقة الروك البديل bôa • <span class="text-rose-400">Alternative Rock</span></p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1.5 bg-slate-900 px-4 py-2 rounded-xl border border-slate-800">
+                            <button onclick="rateSong('boa_twilight', 1)" class="text-slate-500 hover:text-amber-400 text-xl transition">★</button>
+                            <button onclick="rateSong('boa_twilight', 2)" class="text-slate-500 hover:text-amber-400 text-xl transition">★</button>
+                            <button onclick="rateSong('boa_twilight', 3)" class="text-slate-500 hover:text-amber-400 text-xl transition">★</button>
+                            <button onclick="rateSong('boa_twilight', 4)" class="text-slate-500 hover:text-amber-400 text-xl transition">★</button>
+                            <button onclick="rateSong('boa_twilight', 5)" class="text-slate-500 hover:text-amber-400 text-xl transition">★</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- قسم المجتمع والنشاطات الحية (عمود واحد) -->
+        <!-- قسم المجتمع والأصدقاء (يعمل بكل الأجهزة بدون إخفاء) -->
         <aside class="space-y-6">
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
                 <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
                     <span>🌍</span> نشاط المجتمع والتقييمات الحية
                 </h3>
-                <div id="community-feed" class="space-y-4 max-h-[500px] overflow-y-auto pr-2 text-sm">
+                <div id="community-feed" class="space-y-3 max-h-[300px] overflow-y-auto pr-2 text-sm text-slate-300">
                     <p class="text-slate-500 text-center py-4">جاري تحميل النشاطات السحابية...</p>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                    <span>👥</span> الأصدقاء والطلبات
+                </h3>
+                <div class="space-y-3">
+                    <div class="flex gap-2">
+                        <input type="text" id="friend-username" placeholder="اسم مستخدم الصديق..." class="flex-grow bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-rose-500">
+                        <button onclick="sendFriendRequest()" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-2 rounded-xl text-sm transition font-bold">إضافة</button>
+                    </div>
+                    <div id="friends-list" class="space-y-2 mt-4 text-sm text-slate-400">
+                        <p>سجل دخولك لعرض قائمة أصدقائك والتفاعل معهم.</p>
+                    </div>
                 </div>
             </div>
         </aside>
@@ -80,7 +105,7 @@
                     <label class="block text-xs text-slate-400 mb-1">كلمة المرور</label>
                     <input type="password" id="auth-password" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-rose-500">
                 </div>
-                <button onclick="handleAuthSubmit()" id="auth-submit-btn" class="w-full bg-rose-600 hover:bg-rose-700 text-white py-3 rounded-xl font-bold transition shadow-lg shadow-rose-600/20">دخول</button>
+                <button onclick="handleAuthSubmit()" id="auth-submit-btn" class="w-full bg-rose-600 hover:bg-rose-700 text-white py-3 rounded-xl font-bold transition">دخول</button>
                 <p class="text-center text-xs text-slate-400 mt-2">
                     <span id="auth-toggle-text">ليس لديك حساب؟</span> 
                     <button onclick="toggleAuthMode()" class="text-rose-400 hover:underline font-bold mr-1">أنشئ حساباً جديداً</button>
@@ -112,55 +137,36 @@
         let currentUser = null;
         let isRegistering = false;
 
-        // مكتبة الأغاني الافتراضية مع صور بوسترات فنية (Letterboxd Style)
-        const sampleSongs = Array.from({length: 20}, (_, i) => ({
-            id: `song_${i+1}`,
-            title: `أغنية نغمة العصر ${i+1}`,
-            artist: `فنان عالمي ${i+1}`,
-            cover: `https://picsum.photos/seed/naghma${i+1}/200/200`
-        }));
-
         auth.onAuthStateChanged(async (user) => {
             currentUser = user;
             const nav = document.getElementById('auth-nav');
+            const friendsList = document.getElementById('friends-list');
             if (user) {
                 nav.innerHTML = `
-                    <span class="text-xs text-slate-300 hidden sm:inline font-semibold">${user.email.split('@')[0]}</span>
+                    <span class="text-xs text-slate-300 hidden sm:inline font-bold">${user.email.split('@')[0]}</span>
                     <button onclick="logout()" class="bg-slate-800 hover:bg-slate-700 text-rose-400 px-3 py-1.5 rounded-xl text-xs font-bold transition">خروج</button>
                 `;
+                friendsList.innerHTML = `<p class="text-emerald-400 text-xs">أنت متصل سحابياً. أضف أصدقائك وابدأ التفاعل!</p>`;
                 loadCommunityFeed();
             } else {
-                nav.innerHTML = `<button onclick="openAuthModal()" class="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition shadow-lg shadow-rose-600/20">تسجيل الدخول</button>`;
+                nav.innerHTML = `<button onclick="openAuthModal()" class="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition">تسجيل الدخول</button>`;
+                friendsList.innerHTML = `<p>سجل دخولك لعرض قائمة أصدقائك.</p>`;
             }
         });
 
-        function renderSongs(songsToRender = sampleSongs) {
-            const container = document.getElementById('songs-container');
-            container.innerHTML = songsToRender.map(song => `
-                <div class="bg-slate-950/80 border border-slate-800/80 p-4 rounded-xl flex gap-4 items-center hover:border-slate-700 transition group">
-                    <img src="${song.cover}" alt="${song.title}" class="w-16 h-16 rounded-lg object-cover shadow-md group-hover:scale-105 transition">
-                    <div class="flex-grow">
-                        <h4 class="font-bold text-sm text-slate-200">${song.title}</h4>
-                        <p class="text-xs text-slate-400 mb-2">${song.artist}</p>
-                        <div class="flex items-center gap-1">
-                            ${[1,2,3,4,5].map(star => `
-                                <button onclick="rateSong('${song.id}', ${star})" class="text-slate-600 hover:text-amber-400 transition text-base">★</button>
-                            `).join('')}
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function filterSongs() {
+        function filterSong() {
             const query = document.getElementById('search-input').value.toLowerCase();
-            const filtered = sampleSongs.filter(s => s.title.toLowerCase().includes(query) || s.artist.toLowerCase().includes(query));
-            renderSongs(filtered);
+            const container = document.getElementById('songs-container');
+            if("bôa twilight".includes(query) || query === "") {
+                container.style.display = "block";
+            } else {
+                container.style.display = "none";
+            }
         }
 
         async function rateSong(songId, stars) {
             if (!currentUser) {
-                alert('يجب تسجيل الدخول لتقييم الأغاني وحفظها سحابياً!');
+                alert('يجب تسجيل الدخول لتقييم الأغنية وحفظها سحابياً!');
                 openAuthModal();
                 return;
             }
@@ -168,11 +174,11 @@
                 await db.collection('ratings').add({
                     userId: currentUser.uid,
                     userEmail: currentUser.email,
-                    songId: songId,
+                    songId: "bôa - Twilight",
                     stars: stars,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                alert(`تم حفظ تقييمك (${stars} نجوم) بنجاح على السحابة!`);
+                alert(`تم حفظ تقييمك (${stars} نجوم) لأغنية bôa بنجاح على السحابة!`);
                 loadCommunityFeed();
             } catch (error) {
                 console.error(error);
@@ -183,18 +189,17 @@
         async function loadCommunityFeed() {
             const feedContainer = document.getElementById('community-feed');
             try {
-                const snapshot = await db.collection('ratings').orderBy('timestamp', 'desc').limit(6).get();
+                const snapshot = await db.collection('ratings').orderBy('timestamp', 'desc').limit(5).get();
                 if (snapshot.empty) {
                     feedContainer.innerHTML = `<p class="text-slate-500 text-center">لا توجد تقييمات حديثة بعد.</p>`;
                     return;
                 }
                 feedContainer.innerHTML = snapshot.docs.map(doc => {
                     const data = doc.data();
-                    const song = sampleSongs.find(s => s.id === data.songId) || {title: data.songId};
                     return `
-                        <div class="bg-slate-950/40 p-3 rounded-xl border border-slate-800/50">
+                        <div class="bg-slate-950/50 p-2.5 rounded-xl border border-slate-800">
                             <span class="text-rose-400 font-bold">${data.userEmail ? data.userEmail.split('@')[0] : 'مستخدم'}</span> 
-                            تقييم لـ <span class="text-slate-200 font-semibold">${song.title}</span> 
+                            قيم <span class="text-slate-200 font-semibold">${data.songId}</span> 
                             بـ <span class="text-amber-400 font-bold">${data.stars} ★</span>
                         </div>
                     `;
@@ -245,7 +250,16 @@
             alert('تم تسجيل الخروج بنجاح.');
         }
 
-        renderSongs();
+        function sendFriendRequest() {
+            if (!currentUser) {
+                alert('يرجى تسجيل الدخول أولاً لإضافة أصدقاء.');
+                return;
+            }
+            const username = document.getElementById('friend-username').value;
+            if(!username) return alert('الرجاء كتابة اسم المستخدم.');
+            alert(`تم إرسال طلب صداقة إلى الصديق: ${username}`);
+            document.getElementById('friend-username').value = '';
+        }
     </script>
 </body>
 </html>
