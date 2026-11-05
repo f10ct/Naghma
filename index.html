@@ -1,801 +1,304 @@
-import React, { useState, useEffect } from "react";
-import {
-  Search,
-  Plus,
-  Menu,
-  X,
-  User,
-  UserPlus,
-  Users,
-  LogOut,
-  Music,
-  Guitar,
-  Star,
-  LogIn,
-  CheckCircle,
-} from "lucide-react";
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Naghma</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        spotify: '#1DB954',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- React & ReactDOM & Babel -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-[#121212] text-white font-sans antialiased selection:bg-[#1DB954] selection:text-black min-h-screen">
+    <div id="root"></div>
 
-// Initial Mock Data
-const INITIAL_SONGS = [
-  {
-    id: "1",
-    title: "Duvet",
-    artist: "bôa",
-    coverUrl:
-      "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=60",
-    rating: 5.0,
-    addedBy: "System",
-    reviews: [
-      {
-        id: "r1",
-        userName: "Faisal",
-        userAvatar:
-          "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
-        rating: 5.0,
-        comment: "Absolute masterpiece. Timeless vibe!",
-      },
-    ],
-  },
-  {
-    id: "2",
-    title: "I Love You So",
-    artist: "The Walters",
-    coverUrl:
-      "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500&auto=format&fit=crop&q=60",
-    rating: 4.5,
-    addedBy: "Mohsen",
-    reviews: [
-      {
-        id: "r2",
-        userName: "Mohsen",
-        userAvatar:
-          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80",
-        rating: 4.5,
-        comment: "Guitar progression is immaculate.",
-      },
-    ],
-  },
-  {
-    id: "3",
-    title: "Mister Magic",
-    artist: "Grover Washington Jr.",
-    coverUrl:
-      "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=500&auto=format&fit=crop&q=60",
-    rating: 4.8,
-    addedBy: "System",
-    reviews: [],
-  },
-];
+    <script type="text/babel">
+        const { useState, useEffect } = React;
 
-const MOCK_REGISTERED_USERS = [
-  { id: "u1", name: "Alex Rover", email: "alex@music.com" },
-  { id: "u2", name: "Sara Miller", email: "sara@music.com" },
-  { id: "u3", name: "David Chen", email: "david@music.com" },
-  { id: "u4", name: "Elena Rostova", email: "elena@music.com" },
-];
-
-export default function App() {
-  // State
-  const [songs, setSongs] = useState(() => {
-    const saved = localStorage.getItem("mn_songs");
-    return saved ? JSON.parse(saved) : INITIAL_SONGS;
-  });
-
-  const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem("mn_user");
-    return saved ? JSON.parse(saved) : null;
-  });
-
-  const [friends, setFriends] = useState(() => {
-    const saved = localStorage.getItem("mn_friends");
-    return saved ? JSON.parse(saved) : [];
-  });
-
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [addModalOpen, setAddModalOpen] = useState(false);
-  const [selectedSong, setSelectedSong] = useState(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [friendSearch, setFriendSearch] = useState("");
-
-  // Auth Form State
-  const [authEmail, setAuthEmail] = useState("");
-  const [authName, setAuthName] = useState("");
-  const [authPassword, setAuthPassword] = useState("");
-
-  // Add Song Form State
-  const [newTitle, setNewTitle] = useState("");
-  const [newArtist, setNewArtist] = useState("");
-  const [newCover, setNewCover] = useState("");
-  const [newRating, setNewRating] = useState(5.0);
-  const [newReview, setNewReview] = useState("");
-
-  // New Review Form State
-  const [userRating, setUserRating] = useState(5.0);
-  const [userReviewText, setUserReviewText] = useState("");
-
-  // Save to LocalStorage
-  useEffect(() => {
-    localStorage.setItem("mn_songs", JSON.stringify(songs));
-  }, [songs]);
-
-  useEffect(() => {
-    if (user) {
-      localStorage.setItem("mn_user", JSON.stringify(user));
-    } else {
-      localStorage.removeItem("mn_user");
-    }
-  }, [user]);
-
-  useEffect(() => {
-    localStorage.setItem("mn_friends", JSON.stringify(friends));
-  }, [friends]);
-
-  // Auth Handlers
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (!authEmail || !authPassword) return;
-    const name = authName || authEmail.split("@")[0];
-    const loggedUser = {
-      email: authEmail,
-      name: name,
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`,
-    };
-    setUser(loggedUser);
-    setAuthEmail("");
-    setAuthName("");
-    setAuthPassword("");
-  };
-
-  const handleLogout = () => {
-    setUser(null);
-  };
-
-  // Add Friend Handler
-  const handleAddFriend = (targetUser) => {
-    if (!friends.some((f) => f.id === targetUser.id)) {
-      setFriends([...friends, targetUser]);
-    }
-  };
-
-  // Add Song Handler
-  const handleAddSong = (e) => {
-    e.preventDefault();
-    if (!newTitle || !newArtist) return;
-
-    const newSongObj = {
-      id: Date.now().toString(),
-      title: newTitle,
-      artist: newArtist,
-      coverUrl:
-        newCover ||
-        "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500&auto=format&fit=crop&q=60",
-      rating: newRating,
-      addedBy: user ? user.name : "Anonymous",
-      reviews: newReview
-        ? [
+        const INITIAL_SONGS = [
             {
-              id: Date.now().toString(),
-              userName: user ? user.name : "Anonymous",
-              userAvatar: user
-                ? user.avatar
-                : "https://api.dicebear.com/7.x/avataaars/svg?seed=Anon",
-              rating: newRating,
-              comment: newReview,
+                id: "1",
+                title: "Duvet",
+                artist: "bôa",
+                coverUrl: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=60",
+                rating: 5.0,
+                addedBy: "System",
+                reviews: [
+                    { id: "r1", userName: "Faisal", userAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80", rating: 5.0, comment: "Absolute masterpiece. Timeless vibe!" }
+                ]
             },
-          ]
-        : [],
-    };
+            {
+                id: "2",
+                title: "I Love You So",
+                artist: "The Walters",
+                coverUrl: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500&auto=format&fit=crop&q=60",
+                rating: 4.5,
+                addedBy: "Mohsen",
+                reviews: [
+                    { id: "r2", userName: "Mohsen", userAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80", rating: 4.5, comment: "Guitar progression is immaculate." }
+                ]
+            }
+        ];
 
-    setSongs([newSongObj, ...songs]);
-    setAddModalOpen(false);
-    setNewTitle("");
-    setNewArtist("");
-    setNewCover("");
-    setNewRating(5.0);
-    setNewReview("");
-  };
+        const MOCK_REGISTERED_USERS = [
+            { id: "u1", name: "Alex Rover", email: "alex@music.com" },
+            { id: "u2", name: "Sara Miller", email: "sara@music.com" },
+            { id: "u3", name: "David Chen", email: "david@music.com" }
+        ];
 
-  // Add Review Handler
-  const handleAddReview = (e) => {
-    e.preventDefault();
-    if (!selectedSong) return;
+        function App() {
+            const [songs, setSongs] = useState(() => {
+                const saved = localStorage.getItem("mn_songs");
+                return saved ? JSON.parse(saved) : INITIAL_SONGS;
+            });
 
-    const rev = {
-      id: Date.now().toString(),
-      userName: user ? user.name : "Guest Listener",
-      userAvatar: user
-        ? user.avatar
-        : "https://api.dicebear.com/7.x/avataaars/svg?seed=Guest",
-      rating: userRating,
-      comment: userReviewText,
-    };
+            const [user, setUser] = useState(() => {
+                const saved = localStorage.getItem("mn_user");
+                return saved ? JSON.parse(saved) : null;
+            });
 
-    const updatedSongs = songs.map((s) => {
-      if (s.id === selectedSong.id) {
-        const updatedReviews = [rev, ...s.reviews];
-        const avgRating =
-          updatedReviews.reduce((acc, r) => acc + r.rating, 0) /
-          updatedReviews.length;
-        return {
-          ...s,
-          reviews: updatedReviews,
-          rating: Number(avgRating.toFixed(1)),
-        };
-      }
-      return s;
-    });
+            const [friends, setFriends] = useState(() => {
+                const saved = localStorage.getItem("mn_friends");
+                return saved ? JSON.parse(saved) : [];
+            });
 
-    setSongs(updatedSongs);
-    setSelectedSong((prev) => ({
-      ...prev,
-      reviews: [rev, ...prev.reviews],
-      rating: Number(
-        (
-          [rev, ...prev.reviews].reduce((acc, r) => acc + r.rating, 0) /
-          ([rev, ...prev.reviews].length)
-        ).toFixed(1)
-      ),
-    }));
-    setUserReviewText("");
-  };
+            const [drawerOpen, setDrawerOpen] = useState(false);
+            const [addModalOpen, setAddModalOpen] = useState(false);
+            const [selectedSong, setSelectedSong] = useState(null);
+            const [searchQuery, setSearchQuery] = useState("");
+            const [friendSearch, setFriendSearch] = useState("");
 
-  // Filter Songs
-  const filteredSongs = songs.filter(
-    (s) =>
-      s.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.artist.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+            const [authEmail, setAuthEmail] = useState("");
+            const [authName, setAuthName] = useState("");
+            const [authPassword, setAuthPassword] = useState("");
 
-  // Filter Friend Search
-  const filteredFriendCandidates = MOCK_REGISTERED_USERS.filter(
-    (u) =>
-      friendSearch.trim() !== "" &&
-      u.name.toLowerCase().includes(friendSearch.toLowerCase())
-  );
+            const [newTitle, setNewTitle] = useState("");
+            const [newArtist, setNewArtist] = useState("");
+            const [newCover, setNewCover] = useState("");
+            const [newRating, setNewRating] = useState(5.0);
+            const [newReview, setNewReview] = useState("");
 
-  // Render Guitar Ratings
-  const renderGuitars = (rating, interactive = false, onSelect = null) => {
-    return (
-      <div className="flex items-center space-x-1">
-        {[1, 2, 3, 4, 5].map((starIndex) => {
-          const filled = rating >= starIndex;
-          const half = rating >= starIndex - 0.5 && rating < starIndex;
+            const [userRating, setUserRating] = useState(5.0);
+            const [userReviewText, setUserReviewText] = useState("");
 
-          return (
-            <button
-              type={interactive ? "button" : "button"}
-              key={starIndex}
-              disabled={!interactive}
-              onClick={() => interactive && onSelect && onSelect(starIndex)}
-              className={`${
-                interactive ? "cursor-pointer hover:scale-110" : ""
-              } transition-transform p-0.5`}
-            >
-              <Guitar
-                className={`w-5 h-5 ${
-                  filled
-                    ? "text-[#1DB954] fill-[#1DB954]"
-                    : half
-                    ? "text-[#1DB954] opacity-75"
-                    : "text-zinc-600"
-                }`}
-              />
-            </button>
-          );
-        })}
-        <span className="ml-2 text-xs font-semibold text-zinc-400">
-          {rating.toFixed(1)}
-        </span>
-      </div>
-    );
-  };
+            useEffect(() => {
+                localStorage.setItem("mn_songs", JSON.stringify(songs));
+            }, [songs]);
 
-  return (
-    <div className="min-h-screen bg-[#121212] text-white font-sans antialiased selection:bg-[#1DB954] selection:text-black">
-      {/* Header */}
-      <header className="sticky top-0 z-30 bg-[#121212]/95 backdrop-blur-md border-b border-zinc-800 px-4 md:px-8 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          {/* Logo */}
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-full bg-[#1DB954] flex items-center justify-center text-black shadow-lg shadow-[#1DB954]/20">
-              <Guitar className="w-6 h-6 stroke-[2.5]" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-1.5">
-                Music Naghma
-              </h1>
-              <p className="text-xs text-zinc-400">Rate & Track Music</p>
-            </div>
-          </div>
+            useEffect(() => {
+                if (user) localStorage.setItem("mn_user", JSON.stringify(user));
+                else localStorage.removeItem("mn_user");
+            }, [user]);
 
-          {/* Search Bar & Actions */}
-          <div className="flex items-center space-x-3">
-            <div className="relative hidden sm:block w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
-              <input
-                type="text"
-                placeholder="Search music or artist..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 bg-zinc-900 border border-zinc-700/60 rounded-full text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-[#1DB954]"
-              />
-            </div>
+            useEffect(() => {
+                localStorage.setItem("mn_friends", JSON.stringify(friends));
+            }, [friends]);
 
-            <button
-              onClick={() => setAddModalOpen(true)}
-              className="flex items-center space-x-1.5 bg-[#1DB954] hover:bg-[#1ed760] text-black font-semibold px-4 py-2 rounded-full text-sm transition-all shadow-md hover:scale-105 active:scale-95"
-            >
-              <Plus className="w-4 h-4 stroke-[3]" />
-              <span className="hidden xs:inline">Add Song</span>
-            </button>
+            useEffect(() => {
+                lucide.createIcons();
+            });
 
-            {/* Menu Drawer Toggle */}
-            <button
-              onClick={() => setDrawerOpen(true)}
-              className="p-2 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-full text-zinc-300 hover:text-white transition-colors"
-            >
-              <Menu className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-      </header>
+            const handleLogin = (e) => {
+                e.preventDefault();
+                if (!authEmail || !authPassword) return;
+                const name = authName || authEmail.split("@")[0];
+                setUser({ email: authEmail, name: name, avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}` });
+                setAuthEmail(""); setAuthName(""); setAuthPassword("");
+            };
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 md:px-8 py-8">
-        {/* Mobile Search Bar */}
-        <div className="sm:hidden mb-6">
-          <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
-            <input
-              type="text"
-              placeholder="Search music..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-zinc-900 border border-zinc-800 rounded-full text-sm text-white focus:outline-none focus:border-[#1DB954]"
-            />
-          </div>
-        </div>
+            const handleAddSong = (e) => {
+                e.preventDefault();
+                if (!newTitle || !newArtist) return;
+                const newSongObj = {
+                    id: Date.now().toString(),
+                    title: newTitle,
+                    artist: newArtist,
+                    coverUrl: newCover || "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500&auto=format&fit=crop&q=60",
+                    rating: newRating,
+                    addedBy: user ? user.name : "Anonymous",
+                    reviews: newReview ? [{
+                        id: Date.now().toString(),
+                        userName: user ? user.name : "Anonymous",
+                        userAvatar: user ? user.avatar : "https://api.dicebear.com/7.x/avataaars/svg?seed=Anon",
+                        rating: newRating,
+                        comment: newReview
+                    }] : []
+                };
+                setSongs([newSongObj, ...songs]);
+                setAddModalOpen(false);
+                setNewTitle(""); setNewArtist(""); setNewCover(""); setNewRating(5.0); setNewReview("");
+            };
 
-        {/* Section Heading */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-2xl font-bold text-white">Popular Reviews</h2>
-            <p className="text-sm text-zinc-400">
-              Community ratings evaluated in guitars
-            </p>
-          </div>
-          <span className="text-xs text-zinc-500 font-mono">
-            {filteredSongs.length} Entries
-          </span>
-        </div>
+            const renderGuitars = (rating, interactive = false, onSelect = null) => {
+                return (
+                    <div className="flex items-center space-x-1">
+                        {[1, 2, 3, 4, 5].map((idx) => {
+                            const filled = rating >= idx;
+                            return (
+                                <button
+                                    type="button"
+                                    key={idx}
+                                    disabled={!interactive}
+                                    onClick={() => interactive && onSelect && onSelect(idx)}
+                                    className={`${interactive ? "cursor-pointer hover:scale-110" : ""} transition-transform p-0.5`}
+                                >
+                                    <svg className={`w-5 h-5 ${filled ? "text-[#1DB954] fill-[#1DB954]" : "text-zinc-600"}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 5 4 4"/><path d="M13 7 8.7 11.3c-.4.4-.4 1 0 1.4l2.6 2.6c.4.4 1 .4 1.4 0L17 11"/><path d="m3 21 9-9"/><path d="M12.5 16.5l3.9 3.9a2 2 0 0 0 2.8 0l1.8-1.8a2 2 0 0 0 0-2.8l-3.9-3.9"/></svg>
+                                </button>
+                            );
+                        })}
+                        <span className="ml-2 text-xs font-semibold text-zinc-400">{rating.toFixed(1)}</span>
+                    </div>
+                );
+            };
 
-        {/* Grid Display */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-          {filteredSongs.map((song) => (
-            <div
-              key={song.id}
-              onClick={() => setSelectedSong(song)}
-              className="group bg-zinc-900/60 border border-zinc-800/80 rounded-xl overflow-hidden hover:border-[#1DB954]/50 transition-all duration-300 cursor-pointer flex flex-col hover:-translate-y-1 hover:shadow-xl hover:shadow-[#1DB954]/5"
-            >
-              {/* Cover Container */}
-              <div className="relative aspect-square overflow-hidden bg-zinc-800">
-                <img
-                  src={song.coverUrl}
-                  alt={song.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute top-2 right-2 bg-black/80 backdrop-blur-md px-2 py-1 rounded-md border border-white/10 flex items-center space-x-1">
-                  <Guitar className="w-3.5 h-3.5 text-[#1DB954] fill-[#1DB954]" />
-                  <span className="text-xs font-bold text-white">
-                    {song.rating.toFixed(1)}
-                  </span>
-                </div>
-              </div>
-
-              {/* Info Container */}
-              <div className="p-3 flex-1 flex flex-col justify-between">
-                <div>
-                  <h3 className="font-bold text-sm text-white truncate group-hover:text-[#1DB954] transition-colors">
-                    {song.title}
-                  </h3>
-                  <p className="text-xs text-zinc-400 truncate">
-                    {song.artist}
-                  </p>
-                </div>
-                <div className="mt-3 pt-2 border-t border-zinc-800/60 flex items-center justify-between text-[11px] text-zinc-500">
-                  <span>By {song.addedBy}</span>
-                  <span>{song.reviews.length} reviews</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </main>
-
-      {/* Right Drawer Menu */}
-      {drawerOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end">
-          <div
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm"
-            onClick={() => setDrawerOpen(false)}
-          />
-          <div className="relative w-full max-w-md bg-[#181818] border-l border-zinc-800 h-full p-6 flex flex-col overflow-y-auto z-10">
-            {/* Header */}
-            <div className="flex items-center justify-between border-b border-zinc-800 pb-4 mb-6">
-              <div className="flex items-center space-x-2">
-                <User className="w-5 h-5 text-[#1DB954]" />
-                <h2 className="font-bold text-lg text-white">User & Friends</h2>
-              </div>
-              <button
-                onClick={() => setDrawerOpen(false)}
-                className="p-1 rounded-full text-zinc-400 hover:text-white"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Auth Section */}
-            {!user ? (
-              <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 mb-6">
-                <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
-                  <LogIn className="w-4 h-4 text-[#1DB954]" /> Login / Register
-                </h3>
-                <form onSubmit={handleLogin} className="space-y-3">
-                  <input
-                    type="text"
-                    placeholder="User Display Name"
-                    value={authName}
-                    onChange={(e) => setAuthName(e.target.value)}
-                    className="w-full bg-zinc-800 border border-zinc-700/60 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#1DB954]"
-                  />
-                  <input
-                    type="email"
-                    placeholder="Email Address"
-                    value={authEmail}
-                    onChange={(e) => setAuthEmail(e.target.value)}
-                    className="w-full bg-zinc-800 border border-zinc-700/60 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#1DB954]"
-                    required
-                  />
-                  <input
-                    type="password"
-                    placeholder="Password"
-                    value={authPassword}
-                    onChange={(e) => setAuthPassword(e.target.value)}
-                    className="w-full bg-zinc-800 border border-zinc-700/60 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#1DB954]"
-                    required
-                  />
-                  <button
-                    type="submit"
-                    className="w-full bg-[#1DB954] hover:bg-[#1ed760] text-black font-semibold text-xs py-2.5 rounded-lg transition-colors"
-                  >
-                    Save & Enter Account
-                  </button>
-                </form>
-              </div>
-            ) : (
-              <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 mb-6 flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <img
-                    src={user.avatar}
-                    alt={user.name}
-                    className="w-10 h-10 rounded-full bg-zinc-800 border border-zinc-700"
-                  />
-                  <div>
-                    <h3 className="text-sm font-bold text-white">
-                      {user.name}
-                    </h3>
-                    <p className="text-xs text-zinc-400">{user.email}</p>
-                  </div>
-                </div>
-                <button
-                  onClick={handleLogout}
-                  className="p-2 text-zinc-400 hover:text-red-400 transition-colors"
-                  title="Logout"
-                >
-                  <LogOut className="w-4 h-4" />
-                </button>
-              </div>
-            )}
-
-            {/* Friends System */}
-            <div className="flex-1 space-y-6">
-              {/* Find Friends */}
-              <div>
-                <h3 className="text-sm font-bold text-zinc-300 mb-3 flex items-center gap-2">
-                  <UserPlus className="w-4 h-4 text-[#1DB954]" /> Add Friends
-                </h3>
-                <input
-                  type="text"
-                  placeholder="Search registered user..."
-                  value={friendSearch}
-                  onChange={(e) => setFriendSearch(e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#1DB954]"
-                />
-                {filteredFriendCandidates.length > 0 && (
-                  <div className="mt-2 space-y-2 bg-zinc-900/80 border border-zinc-800 rounded-lg p-2">
-                    {filteredFriendCandidates.map((cand) => {
-                      const isAdded = friends.some((f) => f.id === cand.id);
-                      return (
-                        <div
-                          key={cand.id}
-                          className="flex items-center justify-between p-2 hover:bg-zinc-800/50 rounded-md"
-                        >
-                          <div>
-                            <p className="text-xs font-semibold text-white">
-                              {cand.name}
-                            </p>
-                            <p className="text-[10px] text-zinc-500">
-                              {cand.email}
-                            </p>
-                          </div>
-                          {isAdded ? (
-                            <span className="text-[10px] text-[#1DB954] flex items-center gap-1">
-                              <CheckCircle className="w-3 h-3" /> Added
-                            </span>
-                          ) : (
-                            <button
-                              onClick={() => handleAddFriend(cand)}
-                              className="bg-[#1DB954]/10 text-[#1DB954] hover:bg-[#1DB954] hover:text-black font-semibold text-[10px] px-2.5 py-1 rounded-md transition-colors"
-                            >
-                              Add
-                            </button>
-                          )}
+            return (
+                <div className="min-h-screen bg-[#121212] text-white">
+                    {/* Header */}
+                    <header className="sticky top-0 z-30 bg-[#121212]/95 backdrop-blur-md border-b border-zinc-800 px-4 md:px-8 py-4">
+                        <div className="max-w-7xl mx-auto flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                                <div className="w-10 h-10 rounded-full bg-[#1DB954] flex items-center justify-center text-black">
+                                    <i data-lucide="guitar" className="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <h1 className="text-xl font-bold tracking-tight text-white">Music Naghma</h1>
+                                    <p className="text-xs text-zinc-400">Rate & Track Music</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center space-x-3">
+                                <input
+                                    type="text"
+                                    placeholder="Search music..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="hidden sm:block w-64 px-4 py-2 bg-zinc-900 border border-zinc-700/60 rounded-full text-sm text-white focus:outline-none focus:border-[#1DB954]"
+                                />
+                                <button
+                                    onClick={() => setAddModalOpen(true)}
+                                    className="flex items-center space-x-1.5 bg-[#1DB954] hover:bg-[#1ed760] text-black font-semibold px-4 py-2 rounded-full text-sm transition-all"
+                                >
+                                    <i data-lucide="plus" className="w-4 h-4"></i>
+                                    <span>Add Song</span>
+                                </button>
+                                <button
+                                    onClick={() => setDrawerOpen(true)}
+                                    className="p-2 bg-zinc-900 border border-zinc-800 rounded-full text-zinc-300 hover:text-white"
+                                >
+                                    <i data-lucide="menu" className="w-5 h-5"></i>
+                                </button>
+                            </div>
                         </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
+                    </header>
 
-              {/* Friends List */}
-              <div>
-                <h3 className="text-sm font-bold text-zinc-300 mb-3 flex items-center gap-2">
-                  <Users className="w-4 h-4 text-[#1DB954]" /> Friends List (
-                  {friends.length})
-                </h3>
-                {friends.length === 0 ? (
-                  <div className="text-center py-6 border border-dashed border-zinc-800 rounded-xl">
-                    <p className="text-xs text-zinc-500">
-                      No friends added yet. Search above to add!
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {friends.map((friend) => (
-                      <div
-                        key={friend.id}
-                        className="flex items-center space-x-3 p-3 bg-zinc-900/60 border border-zinc-800 rounded-xl"
-                      >
-                        <div className="w-8 h-8 rounded-full bg-[#1DB954]/20 flex items-center justify-center text-[#1DB954] font-bold text-xs">
-                          {friend.name[0]}
+                    {/* Main Content */}
+                    <main className="max-w-7xl mx-auto px-4 md:px-8 py-8">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                            {songs.filter(s => s.title.toLowerCase().includes(searchQuery.toLowerCase()) || s.artist.toLowerCase().includes(searchQuery.toLowerCase())).map((song) => (
+                                <div
+                                    key={song.id}
+                                    onClick={() => setSelectedSong(song)}
+                                    className="group bg-zinc-900/60 border border-zinc-800 rounded-xl overflow-hidden hover:border-[#1DB954]/50 transition-all cursor-pointer flex flex-col"
+                                >
+                                    <div className="relative aspect-square overflow-hidden bg-zinc-800">
+                                        <img src={song.coverUrl} alt={song.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                        <div className="absolute top-2 right-2 bg-black/80 px-2 py-1 rounded-md border border-white/10 flex items-center space-x-1">
+                                            <span className="text-xs font-bold text-[#1DB954]">★ {song.rating.toFixed(1)}</span>
+                                        </div>
+                                    </div>
+                                    <div className="p-3">
+                                        <h3 className="font-bold text-sm text-white truncate">{song.title}</h3>
+                                        <p className="text-xs text-zinc-400 truncate">{song.artist}</p>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
-                        <div>
-                          <p className="text-xs font-bold text-white">
-                            {friend.name}
-                          </p>
-                          <p className="text-[10px] text-zinc-500">
-                            {friend.email}
-                          </p>
+                    </main>
+
+                    {/* Drawer */}
+                    {drawerOpen && (
+                        <div className="fixed inset-0 z-50 flex justify-end">
+                            <div className="fixed inset-0 bg-black/70" onClick={() => setDrawerOpen(false)} />
+                            <div className="relative w-full max-w-md bg-[#181818] border-l border-zinc-800 h-full p-6 flex flex-col overflow-y-auto z-10">
+                                <div className="flex items-center justify-between border-b border-zinc-800 pb-4 mb-6">
+                                    <h2 className="font-bold text-lg text-white">User & Friends</h2>
+                                    <button onClick={() => setDrawerOpen(false)}><i data-lucide="x" className="w-5 h-5"></i></button>
+                                </div>
+
+                                {!user ? (
+                                    <form onSubmit={handleLogin} className="space-y-3 bg-zinc-900 p-4 rounded-xl mb-6">
+                                        <h3 className="text-sm font-bold text-white mb-2">Login / Register</h3>
+                                        <input type="text" placeholder="Name" value={authName} onChange={(e) => setAuthName(e.target.value)} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-xs text-white" />
+                                        <input type="email" placeholder="Email" value={authEmail} onChange={(e) => setAuthEmail(e.target.value)} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-xs text-white" required />
+                                        <input type="password" placeholder="Password" value={authPassword} onChange={(e) => setAuthPassword(e.target.value)} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-xs text-white" required />
+                                        <button type="submit" className="w-full bg-[#1DB954] text-black font-semibold text-xs py-2.5 rounded-lg">Save & Enter</button>
+                                    </form>
+                                ) : (
+                                    <div className="bg-zinc-900 p-4 rounded-xl mb-6 flex items-center justify-between">
+                                        <div>
+                                            <h3 className="text-sm font-bold text-white">{user.name}</h3>
+                                            <p className="text-xs text-zinc-400">{user.email}</p>
+                                        </div>
+                                        <button onClick={() => setUser(null)} className="text-red-400 text-xs">Logout</button>
+                                    </div>
+                                )}
+
+                                <div className="space-y-4">
+                                    <h3 className="text-sm font-bold text-zinc-300">Add Friends</h3>
+                                    <input type="text" placeholder="Search user..." value={friendSearch} onChange={(e) => setFriendSearch(e.target.value)} className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white" />
+                                    {MOCK_REGISTERED_USERS.filter(u => friendSearch && u.name.toLowerCase().includes(friendSearch.toLowerCase())).map(cand => (
+                                        <div key={cand.id} className="flex justify-between items-center bg-zinc-900 p-2 rounded-lg">
+                                            <span className="text-xs">{cand.name}</span>
+                                            <button onClick={() => setFriends([...friends, cand])} className="bg-[#1DB954] text-black px-2 py-1 text-xs rounded">Add</button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+                    )}
 
-      {/* Add Song Modal */}
-      {addModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm"
-            onClick={() => setAddModalOpen(false)}
-          />
-          <div className="relative w-full max-w-md bg-[#181818] border border-zinc-800 rounded-2xl p-6 shadow-2xl z-10">
-            <div className="flex items-center justify-between pb-4 mb-4 border-b border-zinc-800">
-              <h3 className="text-lg font-bold text-white">
-                Post Song & Review
-              </h3>
-              <button
-                onClick={() => setAddModalOpen(false)}
-                className="text-zinc-400 hover:text-white"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleAddSong} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-zinc-400 mb-1">
-                  Song Title *
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Duvet"
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#1DB954]"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-zinc-400 mb-1">
-                  Artist Name *
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. bôa"
-                  value={newArtist}
-                  onChange={(e) => setNewArtist(e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#1DB954]"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-zinc-400 mb-1">
-                  Cover Image URL (Optional)
-                </label>
-                <input
-                  type="url"
-                  placeholder="https://images.unsplash.com/..."
-                  value={newCover}
-                  onChange={(e) => setNewCover(e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#1DB954]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-zinc-400 mb-1">
-                  Your Rating (Guitar Scale)
-                </label>
-                <div className="py-1">
-                  {renderGuitars(newRating, true, (r) => setNewRating(r))}
+                    {/* Add Song Modal */}
+                    {addModalOpen && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                            <div className="fixed inset-0 bg-black/80" onClick={() => setAddModalOpen(false)} />
+                            <div className="relative w-full max-w-md bg-[#181818] border border-zinc-800 rounded-2xl p-6 z-10">
+                                <div className="flex justify-between pb-4 mb-4 border-b border-zinc-800">
+                                    <h3 className="text-lg font-bold">Post Song</h3>
+                                    <button onClick={() => setAddModalOpen(false)}><i data-lucide="x" className="w-5 h-5"></i></button>
+                                </div>
+                                <form onSubmit={handleAddSong} className="space-y-4">
+                                    <input type="text" placeholder="Song Title" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white" required />
+                                    <input type="text" placeholder="Artist Name" value={newArtist} onChange={(e) => setNewArtist(e.target.value)} className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white" required />
+                                    <input type="url" placeholder="Cover Image URL" value={newCover} onChange={(e) => setNewCover(e.target.value)} className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white" />
+                                    <div>
+                                        <label className="text-xs text-zinc-400">Rating</label>
+                                        {renderGuitars(newRating, true, (r) => setNewRating(r))}
+                                    </div>
+                                    <button type="submit" className="w-full bg-[#1DB954] text-black font-bold py-3 rounded-lg mt-2">Publish</button>
+                                </form>
+                            </div>
+                        </div>
+                    )}
                 </div>
-              </div>
+            );
+        }
 
-              <div>
-                <label className="block text-xs font-semibold text-zinc-400 mb-1">
-                  Review Comment (Optional)
-                </label>
-                <textarea
-                  placeholder="What makes this song special?"
-                  value={newReview}
-                  onChange={(e) => setNewReview(e.target.value)}
-                  rows={3}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-[#1DB954]"
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full bg-[#1DB954] hover:bg-[#1ed760] text-black font-bold py-3 rounded-lg transition-colors mt-2"
-              >
-                Publish Song Entry
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Selected Song Detail Modal */}
-      {selectedSong && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm"
-            onClick={() => setSelectedSong(null)}
-          />
-          <div className="relative w-full max-w-2xl bg-[#181818] border border-zinc-800 rounded-2xl overflow-hidden shadow-2xl z-10 max-h-[90vh] flex flex-col">
-            {/* Top Bar */}
-            <div className="flex items-center justify-between p-4 border-b border-zinc-800 bg-zinc-900/40">
-              <span className="text-xs font-mono text-[#1DB954]">
-                Music Naghma Detail
-              </span>
-              <button
-                onClick={() => setSelectedSong(null)}
-                className="text-zinc-400 hover:text-white"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Modal Body */}
-            <div className="p-6 overflow-y-auto space-y-6">
-              {/* Header Info */}
-              <div className="flex flex-col sm:flex-row gap-6 items-start">
-                <img
-                  src={selectedSong.coverUrl}
-                  alt={selectedSong.title}
-                  className="w-32 h-32 rounded-xl object-cover bg-zinc-800 border border-zinc-700/60"
-                />
-                <div className="flex-1">
-                  <h2 className="text-2xl font-bold text-white">
-                    {selectedSong.title}
-                  </h2>
-                  <p className="text-base text-zinc-400">
-                    {selectedSong.artist}
-                  </p>
-                  <div className="mt-3 flex items-center space-x-3">
-                    {renderGuitars(selectedSong.rating)}
-                  </div>
-                  <p className="mt-2 text-xs text-zinc-500">
-                    Added to catalog by: {selectedSong.addedBy}
-                  </p>
-                </div>
-              </div>
-
-              {/* Add New Review Section */}
-              <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
-                <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-2">
-                  Write Your Review
-                </h4>
-                <form onSubmit={handleAddReview} className="space-y-3">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-xs text-zinc-400">Rating:</span>
-                    {renderGuitars(userRating, true, (r) => setUserRating(r))}
-                  </div>
-                  <textarea
-                    placeholder="Share your thoughts on this track..."
-                    value={userReviewText}
-                    onChange={(e) => setUserReviewText(e.target.value)}
-                    rows={2}
-                    className="w-full bg-zinc-800 border border-zinc-700/60 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-[#1DB954]"
-                    required
-                  />
-                  <button
-                    type="submit"
-                    className="bg-[#1DB954] hover:bg-[#1ed760] text-black font-bold text-xs px-4 py-2 rounded-lg transition-colors"
-                  >
-                    Submit Guitar Rating
-                  </button>
-                </form>
-              </div>
-
-              {/* Reviews List */}
-              <div>
-                <h4 className="text-sm font-bold text-white mb-3">
-                  Community Reviews ({selectedSong.reviews.length})
-                </h4>
-                {selectedSong.reviews.length === 0 ? (
-                  <p className="text-xs text-zinc-500 italic">
-                    No reviews written yet. Be the first!
-                  </p>
-                ) : (
-                  <div className="space-y-3">
-                    {selectedSong.reviews.map((rev) => (
-                      <div
-                        key={rev.id}
-                        className="bg-zinc-900/50 border border-zinc-800/80 rounded-xl p-3 space-y-2"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-2">
-                            <img
-                              src={rev.userAvatar}
-                              alt={rev.userName}
-                              className="w-6 h-6 rounded-full bg-zinc-800"
-                            />
-                            <span className="text-xs font-bold text-white">
-                              {rev.userName}
-                            </span>
-                          </div>
-                          {renderGuitars(rev.rating)}
-                        </div>
-                        <p className="text-xs text-zinc-300 pl-8">
-                          {rev.comment}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
