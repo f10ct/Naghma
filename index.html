@@ -1,425 +1,801 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نغمة | Naghma - منصة الموسيقى والسحابة</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Cairo', sans-serif; }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-    </style>
-</head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-rose-500 selection:text-white">
+import React, { useState, useEffect } from "react";
+import {
+  Search,
+  Plus,
+  Menu,
+  X,
+  User,
+  UserPlus,
+  Users,
+  LogOut,
+  Music,
+  Guitar,
+  Star,
+  LogIn,
+  CheckCircle,
+} from "lucide-react";
 
-    <!-- Navbar الحديث -->
-    <header class="bg-slate-950/80 backdrop-blur-md border-b border-slate-900 sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-rose-600 to-amber-500 flex items-center justify-center shadow-lg shadow-rose-600/30 text-white font-black text-xl">🎵</div>
-                <span class="text-2xl font-black tracking-tight bg-gradient-to-l from-white to-slate-400 bg-clip-text text-transparent">نغمة</span>
-            </div>
-            <nav class="hidden md:flex items-center gap-6 text-sm font-semibold text-slate-400">
-                <button onclick="switchTab('home')" class="hover:text-rose-400 transition text-rose-400">الرئيسية</button>
-                <button onclick="switchTab('explore')" class="hover:text-rose-400 transition">اكتشف</button>
-                <button onclick="switchTab('friends')" class="hover:text-rose-400 transition">الأصدقاء</button>
-            </nav>
-            <div id="auth-nav-container">
-                <button onclick="openAuthModal('login')" class="bg-rose-600 hover:bg-rose-500 text-white px-5 py-2.5 rounded-2xl text-sm font-bold shadow-xl shadow-rose-600/20 transition">تسجيل الدخول</button>
-            </div>
-        </div>
-    </header>
+// Initial Mock Data
+const INITIAL_SONGS = [
+  {
+    id: "1",
+    title: "Duvet",
+    artist: "bôa",
+    coverUrl:
+      "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=60",
+    rating: 5.0,
+    addedBy: "System",
+    reviews: [
+      {
+        id: "r1",
+        userName: "Faisal",
+        userAvatar:
+          "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
+        rating: 5.0,
+        comment: "Absolute masterpiece. Timeless vibe!",
+      },
+    ],
+  },
+  {
+    id: "2",
+    title: "I Love You So",
+    artist: "The Walters",
+    coverUrl:
+      "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500&auto=format&fit=crop&q=60",
+    rating: 4.5,
+    addedBy: "Mohsen",
+    reviews: [
+      {
+        id: "r2",
+        userName: "Mohsen",
+        userAvatar:
+          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80",
+        rating: 4.5,
+        comment: "Guitar progression is immaculate.",
+      },
+    ],
+  },
+  {
+    id: "3",
+    title: "Mister Magic",
+    artist: "Grover Washington Jr.",
+    coverUrl:
+      "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=500&auto=format&fit=crop&q=60",
+    rating: 4.8,
+    addedBy: "System",
+    reviews: [],
+  },
+];
 
-    <!-- Main Workspace -->
-    <main class="max-w-7xl mx-auto px-6 py-8 flex-grow grid grid-cols-1 lg:grid-cols-4 gap-8 w-full">
-        
-        <!-- المحتوى الرئيسي (3 أعمدة) -->
-        <div class="lg:col-span-3 space-y-8" id="main-content-area">
-            
-            <!-- تبويب الرئيسية: الأغاني الشائعة -->
-            <section id="tab-home" class="space-y-6">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-900/40 border border-slate-900 p-6 rounded-3xl backdrop-blur-sm">
-                    <div>
-                        <h1 class="text-2xl font-black text-white">الأغاني الشائعة 🔥</h1>
-                        <p class="text-sm text-slate-400 mt-1">أبرز الإصدارات الموسيقية وتقييمات المجتمع اللحظية</p>
-                    </div>
-                    <div class="relative w-full sm:w-72">
-                        <input type="text" id="search-input" oninput="filterSongs()" placeholder="بحث عن أغنية أو فنان..." class="w-full bg-slate-900 border border-slate-800 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-rose-500 transition">
-                    </div>
-                </div>
+const MOCK_REGISTERED_USERS = [
+  { id: "u1", name: "Alex Rover", email: "alex@music.com" },
+  { id: "u2", name: "Sara Miller", email: "sara@music.com" },
+  { id: "u3", name: "David Chen", email: "david@music.com" },
+  { id: "u4", name: "Elena Rostova", email: "elena@music.com" },
+];
 
-                <!-- قائمة الأغاني -->
-                <div id="songs-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <!-- تعبئة تلقائية ديناميكية -->
-                </div>
-            </section>
+export default function App() {
+  // State
+  const [songs, setSongs] = useState(() => {
+    const saved = localStorage.getItem("mn_songs");
+    return saved ? JSON.parse(saved) : INITIAL_SONGS;
+  });
 
-            <!-- تبويب الأصدقاء والملفات الشخصية -->
-            <section id="tab-friends" class="hidden space-y-6">
-                <div class="bg-slate-900/40 border border-slate-900 p-6 rounded-3xl backdrop-blur-sm">
-                    <h2 class="text-xl font-black text-white mb-4">إدارة الأصدقاء والطلبات 👥</h2>
-                    <div class="flex gap-3 mb-6">
-                        <input type="text" id="friend-search-input" placeholder="ابحث عن اسم مستخدم لإضافته..." class="flex-grow bg-slate-900 border border-slate-800 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-rose-500">
-                        <button onclick="sendFriendRequest()" class="bg-rose-600 hover:bg-rose-500 text-white px-6 py-3 rounded-2xl text-sm font-bold transition">إضافة</button>
-                    </div>
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem("mn_user");
+    return saved ? JSON.parse(saved) : null;
+  });
 
-                    <!-- صندوق طلبات الصداقة -->
-                    <div class="space-y-4">
-                        <h3 class="text-sm font-bold text-slate-400">طلبات الصداقة الواردة</h3>
-                        <div id="friend-requests-box" class="space-y-3">
-                            <div class="bg-slate-900/80 border border-slate-800/80 p-4 rounded-2xl flex items-center justify-between">
-                                <span class="text-sm text-slate-400">لا توجد طلبات صداقة حالياً.</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </div>
+  const [friends, setFriends] = useState(() => {
+    const saved = localStorage.getItem("mn_friends");
+    return saved ? JSON.parse(saved) : [];
+  });
 
-        <!-- الشريط الجانبي (نشاط المجتمع + الملف الشخصي المصغر) -->
-        <aside class="space-y-6">
-            <div class="bg-slate-900/40 border border-slate-900 p-6 rounded-3xl backdrop-blur-sm space-y-4">
-                <h3 class="text-base font-bold text-white flex items-center gap-2"><span>🌍</span> نشاط المجتمع</h3>
-                <div id="community-feed" class="space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar pr-1 text-sm">
-                    <p class="text-slate-500 text-center py-6">جاري تحميل النشاطات السحابية...</p>
-                </div>
-            </div>
-        </aside>
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [selectedSong, setSelectedSong] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [friendSearch, setFriendSearch] = useState("");
 
-    </main>
+  // Auth Form State
+  const [authEmail, setAuthEmail] = useState("");
+  const [authName, setAuthName] = useState("");
+  const [authPassword, setAuthPassword] = useState("");
 
-    <!-- نافذة منبثقة مخصصة للتنبيهات (Modal Alert بديل Alert المتصفح) -->
-    <div id="custom-modal-alert" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl animate-in">
-            <div id="modal-alert-icon" class="w-12 h-12 bg-rose-500/20 text-rose-500 rounded-2xl mx-auto flex items-center justify-center text-xl font-bold">✨</div>
-            <h4 id="modal-alert-title" class="text-lg font-black text-white">إشعار نغمة</h4>
-            <p id="modal-alert-desc" class="text-sm text-slate-300">تم العملية بنجاح</p>
-            <button onclick="closeCustomAlert()" class="w-full bg-rose-600 hover:bg-rose-500 text-white py-3 rounded-2xl font-bold text-sm transition">إغلاق</button>
-        </div>
-    </div>
+  // Add Song Form State
+  const [newTitle, setNewTitle] = useState("");
+  const [newArtist, setNewArtist] = useState("");
+  const [newCover, setNewCover] = useState("");
+  const [newRating, setNewRating] = useState(5.0);
+  const [newReview, setNewReview] = useState("");
 
-    <!-- نافذة تسجيل الدخول / التسجيل الشاملة -->
-    <div id="auth-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-8 shadow-2xl relative space-y-6">
-            <button onclick="closeAuthModal()" class="absolute top-6 left-6 text-slate-400 hover:text-white bg-slate-800/50 w-8 h-8 rounded-full flex items-center justify-center">✕</button>
-            <h3 id="auth-modal-title" class="text-2xl font-black text-white">تسجيل الدخول</h3>
-            
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1.5">البريد الإلكتروني</label>
-                    <input type="email" id="auth-email" class="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-rose-500 transition">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1.5">كلمة المرور</label>
-                    <input type="password" id="auth-password" class="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-rose-500 transition">
-                </div>
+  // New Review Form State
+  const [userRating, setUserRating] = useState(5.0);
+  const [userReviewText, setUserReviewText] = useState("");
 
-                <!-- حقول إضافية تظهر فقط عند إنشاء حساب جديد (يوزر + أفتار + بايو) -->
-                <div id="register-extra-fields" class="space-y-4 hidden">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">اسم المستخدم الفريد (Username)</label>
-                        <input type="text" id="auth-username" class="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-rose-500 transition" placeholder="مثال: mohsen_marwi">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">رابط الصورة الرمزية (Avatar URL)</label>
-                        <input type="text" id="auth-avatar" class="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-rose-500 transition" placeholder="ضع رابط صورة شخصية أو أفتار">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">نبذة عنك (Bio)</label>
-                        <textarea id="auth-bio" class="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-rose-500 transition resize-none" rows="2" placeholder="أكتب شيئاً عن ذوقك الموسيقي..."></textarea>
-                    </div>
-                </div>
+  // Save to LocalStorage
+  useEffect(() => {
+    localStorage.setItem("mn_songs", JSON.stringify(songs));
+  }, [songs]);
 
-                <button onclick="handleAuthSubmit()" id="auth-submit-btn" class="w-full bg-rose-600 hover:bg-rose-500 text-white py-3.5 rounded-2xl font-bold text-sm transition shadow-lg shadow-rose-600/20">دخول</button>
-                
-                <p class="text-center text-xs text-slate-400 pt-2">
-                    <span id="auth-toggle-text">ليس لديك حساب؟</span> 
-                    <button onclick="toggleAuthMode()" class="text-rose-400 font-bold hover:underline mr-1">أنشئ حساباً جديداً</button>
-                </p>
-            </div>
-        </div>
-    </div>
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem("mn_user", JSON.stringify(user));
+    } else {
+      localStorage.removeItem("mn_user");
+    }
+  }, [user]);
 
-    <!-- نافذة عرض الملف الشخصي / البايو للصديق -->
-    <div id="profile-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-8 shadow-2xl relative space-y-6 text-center">
-            <button onclick="closeProfileModal()" class="absolute top-6 left-6 text-slate-400 hover:text-white bg-slate-800/50 w-8 h-8 rounded-full flex items-center justify-center">✕</button>
-            <div class="relative w-24 h-24 mx-auto">
-                <img id="profile-modal-avatar" src="" alt="Avatar" class="w-24 h-24 rounded-full object-cover border-4 border-rose-500/30 shadow-xl">
+  useEffect(() => {
+    localStorage.setItem("mn_friends", JSON.stringify(friends));
+  }, [friends]);
+
+  // Auth Handlers
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (!authEmail || !authPassword) return;
+    const name = authName || authEmail.split("@")[0];
+    const loggedUser = {
+      email: authEmail,
+      name: name,
+      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`,
+    };
+    setUser(loggedUser);
+    setAuthEmail("");
+    setAuthName("");
+    setAuthPassword("");
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+  };
+
+  // Add Friend Handler
+  const handleAddFriend = (targetUser) => {
+    if (!friends.some((f) => f.id === targetUser.id)) {
+      setFriends([...friends, targetUser]);
+    }
+  };
+
+  // Add Song Handler
+  const handleAddSong = (e) => {
+    e.preventDefault();
+    if (!newTitle || !newArtist) return;
+
+    const newSongObj = {
+      id: Date.now().toString(),
+      title: newTitle,
+      artist: newArtist,
+      coverUrl:
+        newCover ||
+        "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500&auto=format&fit=crop&q=60",
+      rating: newRating,
+      addedBy: user ? user.name : "Anonymous",
+      reviews: newReview
+        ? [
+            {
+              id: Date.now().toString(),
+              userName: user ? user.name : "Anonymous",
+              userAvatar: user
+                ? user.avatar
+                : "https://api.dicebear.com/7.x/avataaars/svg?seed=Anon",
+              rating: newRating,
+              comment: newReview,
+            },
+          ]
+        : [],
+    };
+
+    setSongs([newSongObj, ...songs]);
+    setAddModalOpen(false);
+    setNewTitle("");
+    setNewArtist("");
+    setNewCover("");
+    setNewRating(5.0);
+    setNewReview("");
+  };
+
+  // Add Review Handler
+  const handleAddReview = (e) => {
+    e.preventDefault();
+    if (!selectedSong) return;
+
+    const rev = {
+      id: Date.now().toString(),
+      userName: user ? user.name : "Guest Listener",
+      userAvatar: user
+        ? user.avatar
+        : "https://api.dicebear.com/7.x/avataaars/svg?seed=Guest",
+      rating: userRating,
+      comment: userReviewText,
+    };
+
+    const updatedSongs = songs.map((s) => {
+      if (s.id === selectedSong.id) {
+        const updatedReviews = [rev, ...s.reviews];
+        const avgRating =
+          updatedReviews.reduce((acc, r) => acc + r.rating, 0) /
+          updatedReviews.length;
+        return {
+          ...s,
+          reviews: updatedReviews,
+          rating: Number(avgRating.toFixed(1)),
+        };
+      }
+      return s;
+    });
+
+    setSongs(updatedSongs);
+    setSelectedSong((prev) => ({
+      ...prev,
+      reviews: [rev, ...prev.reviews],
+      rating: Number(
+        (
+          [rev, ...prev.reviews].reduce((acc, r) => acc + r.rating, 0) /
+          ([rev, ...prev.reviews].length)
+        ).toFixed(1)
+      ),
+    }));
+    setUserReviewText("");
+  };
+
+  // Filter Songs
+  const filteredSongs = songs.filter(
+    (s) =>
+      s.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      s.artist.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Filter Friend Search
+  const filteredFriendCandidates = MOCK_REGISTERED_USERS.filter(
+    (u) =>
+      friendSearch.trim() !== "" &&
+      u.name.toLowerCase().includes(friendSearch.toLowerCase())
+  );
+
+  // Render Guitar Ratings
+  const renderGuitars = (rating, interactive = false, onSelect = null) => {
+    return (
+      <div className="flex items-center space-x-1">
+        {[1, 2, 3, 4, 5].map((starIndex) => {
+          const filled = rating >= starIndex;
+          const half = rating >= starIndex - 0.5 && rating < starIndex;
+
+          return (
+            <button
+              type={interactive ? "button" : "button"}
+              key={starIndex}
+              disabled={!interactive}
+              onClick={() => interactive && onSelect && onSelect(starIndex)}
+              className={`${
+                interactive ? "cursor-pointer hover:scale-110" : ""
+              } transition-transform p-0.5`}
+            >
+              <Guitar
+                className={`w-5 h-5 ${
+                  filled
+                    ? "text-[#1DB954] fill-[#1DB954]"
+                    : half
+                    ? "text-[#1DB954] opacity-75"
+                    : "text-zinc-600"
+                }`}
+              />
+            </button>
+          );
+        })}
+        <span className="ml-2 text-xs font-semibold text-zinc-400">
+          {rating.toFixed(1)}
+        </span>
+      </div>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-[#121212] text-white font-sans antialiased selection:bg-[#1DB954] selection:text-black">
+      {/* Header */}
+      <header className="sticky top-0 z-30 bg-[#121212]/95 backdrop-blur-md border-b border-zinc-800 px-4 md:px-8 py-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          {/* Logo */}
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 rounded-full bg-[#1DB954] flex items-center justify-center text-black shadow-lg shadow-[#1DB954]/20">
+              <Guitar className="w-6 h-6 stroke-[2.5]" />
             </div>
             <div>
-                <h3 id="profile-modal-name" class="text-xl font-black text-white">اسم المستخدم</h3>
-                <p id="profile-modal-email" class="text-xs text-rose-400 mt-1">email@domain.com</p>
+              <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-1.5">
+                Music Naghma
+              </h1>
+              <p className="text-xs text-zinc-400">Rate & Track Music</p>
             </div>
-            <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 text-sm text-slate-300">
-                <p id="profile-modal-bio" class="italic">لا توجد نبذة شخصية مضافة بعد.</p>
+          </div>
+
+          {/* Search Bar & Actions */}
+          <div className="flex items-center space-x-3">
+            <div className="relative hidden sm:block w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+              <input
+                type="text"
+                placeholder="Search music or artist..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-9 pr-4 py-2 bg-zinc-900 border border-zinc-700/60 rounded-full text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-[#1DB954]"
+              />
             </div>
+
+            <button
+              onClick={() => setAddModalOpen(true)}
+              className="flex items-center space-x-1.5 bg-[#1DB954] hover:bg-[#1ed760] text-black font-semibold px-4 py-2 rounded-full text-sm transition-all shadow-md hover:scale-105 active:scale-95"
+            >
+              <Plus className="w-4 h-4 stroke-[3]" />
+              <span className="hidden xs:inline">Add Song</span>
+            </button>
+
+            {/* Menu Drawer Toggle */}
+            <button
+              onClick={() => setDrawerOpen(true)}
+              className="p-2 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-full text-zinc-300 hover:text-white transition-colors"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+          </div>
         </div>
-    </div>
+      </header>
 
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 md:px-8 py-8">
+        {/* Mobile Search Bar */}
+        <div className="sm:hidden mb-6">
+          <div className="relative w-full">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+            <input
+              type="text"
+              placeholder="Search music..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-4 py-2 bg-zinc-900 border border-zinc-800 rounded-full text-sm text-white focus:outline-none focus:border-[#1DB954]"
+            />
+          </div>
+        </div>
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyBBFGVlIWgRj_TQ_n_nEMo1KMPi3q8RWg8",
-            authDomain: "naghma-c40ef.firebaseapp.com",
-            projectId: "naghma-c40ef",
-            storageBucket: "naghma-c40ef.firebasestorage.app",
-            messagingSenderId: "287983891548",
-            appId: "1:287983891548:web:b02023bc0df7704c66a299",
-            measurementId: "G-K52Y5WFNR3"
-        };
+        {/* Section Heading */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-2xl font-bold text-white">Popular Reviews</h2>
+            <p className="text-sm text-zinc-400">
+              Community ratings evaluated in guitars
+            </p>
+          </div>
+          <span className="text-xs text-zinc-500 font-mono">
+            {filteredSongs.length} Entries
+          </span>
+        </div>
 
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-
-        let currentUser = null;
-        let isRegistering = false;
-
-        // مكتبة الأغاني الشائعة (شاملة أغنية bôa وغيرها)
-        const popularSongs = [
-            { id: 'boa_twilight', title: 'Twilight', artist: 'bôa', cover: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=300&auto=format&fit=crop&q=80', genre: 'Alternative Rock' },
-            { id: 'song_2', title: 'Blinding Lights', artist: 'The Weeknd', cover: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&auto=format&fit=crop&q=80', genre: 'Synthwave' },
-            { id: 'song_3', title: 'Starboy', artist: 'The Weeknd ft. Daft Punk', cover: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&auto=format&fit=crop&q=80', genre: 'Pop / R&B' },
-            { id: 'song_4', title: 'Shape of You', artist: 'Ed Sheeran', cover: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=300&auto=format&fit=crop&q=80', genre: 'Pop' }
-        ];
-
-        auth.onAuthStateChanged(async (user) => {
-            currentUser = user;
-            const navContainer = document.getElementById('auth-nav-container');
-            if (user) {
-                // جلب بيانات الملف الشخصي من فايرستور
-                const userDoc = await db.collection('users').doc(user.uid).get();
-                const userData = userDoc.exists ? userDoc.data() : {};
-                const username = userData.username || user.email.split('@')[0];
-                const avatar = userData.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80';
-
-                navContainer.innerHTML = `
-                    <div class="flex items-center gap-3 bg-slate-900 border border-slate-800 px-4 py-2 rounded-2xl">
-                        <img src="${avatar}" class="w-8 h-8 rounded-full object-cover border border-rose-500">
-                        <span class="text-xs font-bold text-white hidden sm:inline">${username}</span>
-                        <button onclick="logout()" class="text-rose-400 hover:text-rose-300 text-xs font-bold mr-2">خروج</button>
-                    </div>
-                `;
-                loadCommunityFeed();
-                loadFriendRequests(user.uid);
-            } else {
-                navContainer.innerHTML = `<button onclick="openAuthModal('login')" class="bg-rose-600 hover:bg-rose-500 text-white px-5 py-2.5 rounded-2xl text-sm font-bold shadow-xl shadow-rose-600/20 transition">تسجيل الدخول</button>`;
-            }
-        });
-
-        function renderSongs(songs = popularSongs) {
-            const container = document.getElementById('songs-container');
-            container.innerHTML = songs.map(song => `
-                <div class="bg-slate-900/60 border border-slate-800/80 p-4 rounded-3xl flex gap-4 items-center hover:border-slate-700 transition">
-                    <img src="${song.cover}" alt="${song.title}" class="w-16 h-16 rounded-2xl object-cover shadow-md">
-                    <div class="flex-grow">
-                        <h4 class="font-bold text-sm text-white">${song.title}</h4>
-                        <p class="text-xs text-slate-400 mb-2">${song.artist} • <span class="text-rose-400">${song.genre}</span></p>
-                        <div class="flex items-center gap-1">
-                            ${[1,2,3,4,5].map(star => `
-                                <button onclick="rateSong('${song.id}', '${song.title}', ${star})" class="text-slate-600 hover:text-amber-400 text-lg transition">★</button>
-                            `).join('')}
-                        </div>
-                    </div>
+        {/* Grid Display */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+          {filteredSongs.map((song) => (
+            <div
+              key={song.id}
+              onClick={() => setSelectedSong(song)}
+              className="group bg-zinc-900/60 border border-zinc-800/80 rounded-xl overflow-hidden hover:border-[#1DB954]/50 transition-all duration-300 cursor-pointer flex flex-col hover:-translate-y-1 hover:shadow-xl hover:shadow-[#1DB954]/5"
+            >
+              {/* Cover Container */}
+              <div className="relative aspect-square overflow-hidden bg-zinc-800">
+                <img
+                  src={song.coverUrl}
+                  alt={song.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute top-2 right-2 bg-black/80 backdrop-blur-md px-2 py-1 rounded-md border border-white/10 flex items-center space-x-1">
+                  <Guitar className="w-3.5 h-3.5 text-[#1DB954] fill-[#1DB954]" />
+                  <span className="text-xs font-bold text-white">
+                    {song.rating.toFixed(1)}
+                  </span>
                 </div>
-            `).join('');
-        }
+              </div>
 
-        function filterSongs() {
-            const query = document.getElementById('search-input').value.toLowerCase();
-            const filtered = popularSongs.filter(s => s.title.toLowerCase().includes(query) || s.artist.toLowerCase().includes(query));
-            renderSongs(filtered);
-        }
+              {/* Info Container */}
+              <div className="p-3 flex-1 flex flex-col justify-between">
+                <div>
+                  <h3 className="font-bold text-sm text-white truncate group-hover:text-[#1DB954] transition-colors">
+                    {song.title}
+                  </h3>
+                  <p className="text-xs text-zinc-400 truncate">
+                    {song.artist}
+                  </p>
+                </div>
+                <div className="mt-3 pt-2 border-t border-zinc-800/60 flex items-center justify-between text-[11px] text-zinc-500">
+                  <span>By {song.addedBy}</span>
+                  <span>{song.reviews.length} reviews</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </main>
 
-        async function rateSong(songId, songTitle, stars) {
-            if (!currentUser) {
-                showCustomAlert("تنبيه أمان", "يجب تسجيل الدخول لتقييم الأغاني وحفظها سحابياً!");
-                openAuthModal('login');
-                return;
-            }
-            try {
-                const userDoc = await db.collection('users').doc(currentUser.uid).get();
-                const username = userDoc.exists ? userDoc.data().username : currentUser.email.split('@')[0];
+      {/* Right Drawer Menu */}
+      {drawerOpen && (
+        <div className="fixed inset-0 z-50 flex justify-end">
+          <div
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm"
+            onClick={() => setDrawerOpen(false)}
+          />
+          <div className="relative w-full max-w-md bg-[#181818] border-l border-zinc-800 h-full p-6 flex flex-col overflow-y-auto z-10">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-zinc-800 pb-4 mb-6">
+              <div className="flex items-center space-x-2">
+                <User className="w-5 h-5 text-[#1DB954]" />
+                <h2 className="font-bold text-lg text-white">User & Friends</h2>
+              </div>
+              <button
+                onClick={() => setDrawerOpen(false)}
+                className="p-1 rounded-full text-zinc-400 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
-                await db.collection('ratings').add({
-                    userId: currentUser.uid,
-                    username: username,
-                    songId: songId,
-                    songTitle: songTitle,
-                    stars: stars,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                showCustomAlert("نجاح الحفظ", `تم حفظ تقييمك (${stars} نجوم) على السحابة بنجاح!`);
-                loadCommunityFeed();
-            } catch (error) {
-                showCustomAlert("خطأ", error.message);
-            }
-        }
+            {/* Auth Section */}
+            {!user ? (
+              <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 mb-6">
+                <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                  <LogIn className="w-4 h-4 text-[#1DB954]" /> Login / Register
+                </h3>
+                <form onSubmit={handleLogin} className="space-y-3">
+                  <input
+                    type="text"
+                    placeholder="User Display Name"
+                    value={authName}
+                    onChange={(e) => setAuthName(e.target.value)}
+                    className="w-full bg-zinc-800 border border-zinc-700/60 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#1DB954]"
+                  />
+                  <input
+                    type="email"
+                    placeholder="Email Address"
+                    value={authEmail}
+                    onChange={(e) => setAuthEmail(e.target.value)}
+                    className="w-full bg-zinc-800 border border-zinc-700/60 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#1DB954]"
+                    required
+                  />
+                  <input
+                    type="password"
+                    placeholder="Password"
+                    value={authPassword}
+                    onChange={(e) => setAuthPassword(e.target.value)}
+                    className="w-full bg-zinc-800 border border-zinc-700/60 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#1DB954]"
+                    required
+                  />
+                  <button
+                    type="submit"
+                    className="w-full bg-[#1DB954] hover:bg-[#1ed760] text-black font-semibold text-xs py-2.5 rounded-lg transition-colors"
+                  >
+                    Save & Enter Account
+                  </button>
+                </form>
+              </div>
+            ) : (
+              <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 mb-6 flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <img
+                    src={user.avatar}
+                    alt={user.name}
+                    className="w-10 h-10 rounded-full bg-zinc-800 border border-zinc-700"
+                  />
+                  <div>
+                    <h3 className="text-sm font-bold text-white">
+                      {user.name}
+                    </h3>
+                    <p className="text-xs text-zinc-400">{user.email}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="p-2 text-zinc-400 hover:text-red-400 transition-colors"
+                  title="Logout"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+            )}
 
-        async function loadCommunityFeed() {
-            const feedContainer = document.getElementById('community-feed');
-            try {
-                const snapshot = await db.collection('ratings').orderBy('timestamp', 'desc').limit(5).get();
-                if (snapshot.empty) {
-                    feedContainer.innerHTML = `<p class="text-slate-500 text-center">لا توجد تقييمات حديثة بعد.</p>`;
-                    return;
-                }
-                feedContainer.innerHTML = snapshot.docs.map(doc => {
-                    const data = doc.data();
-                    return `
-                        <div class="bg-slate-950/40 p-3 rounded-2xl border border-slate-800/60">
-                            <span class="text-rose-400 font-bold">${data.username || 'مستخدم'}</span> 
-                            قيم <span class="text-white font-semibold">${data.songTitle}</span> 
-                            بـ <span class="text-amber-400 font-bold">${data.stars} ★</span>
+            {/* Friends System */}
+            <div className="flex-1 space-y-6">
+              {/* Find Friends */}
+              <div>
+                <h3 className="text-sm font-bold text-zinc-300 mb-3 flex items-center gap-2">
+                  <UserPlus className="w-4 h-4 text-[#1DB954]" /> Add Friends
+                </h3>
+                <input
+                  type="text"
+                  placeholder="Search registered user..."
+                  value={friendSearch}
+                  onChange={(e) => setFriendSearch(e.target.value)}
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#1DB954]"
+                />
+                {filteredFriendCandidates.length > 0 && (
+                  <div className="mt-2 space-y-2 bg-zinc-900/80 border border-zinc-800 rounded-lg p-2">
+                    {filteredFriendCandidates.map((cand) => {
+                      const isAdded = friends.some((f) => f.id === cand.id);
+                      return (
+                        <div
+                          key={cand.id}
+                          className="flex items-center justify-between p-2 hover:bg-zinc-800/50 rounded-md"
+                        >
+                          <div>
+                            <p className="text-xs font-semibold text-white">
+                              {cand.name}
+                            </p>
+                            <p className="text-[10px] text-zinc-500">
+                              {cand.email}
+                            </p>
+                          </div>
+                          {isAdded ? (
+                            <span className="text-[10px] text-[#1DB954] flex items-center gap-1">
+                              <CheckCircle className="w-3 h-3" /> Added
+                            </span>
+                          ) : (
+                            <button
+                              onClick={() => handleAddFriend(cand)}
+                              className="bg-[#1DB954]/10 text-[#1DB954] hover:bg-[#1DB954] hover:text-black font-semibold text-[10px] px-2.5 py-1 rounded-md transition-colors"
+                            >
+                              Add
+                            </button>
+                          )}
                         </div>
-                    `;
-                }).join('');
-            } catch (e) {
-                console.error(e);
-            }
-        }
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
 
-        // إدارة الأصدقاء والطلبات
-        async function sendFriendRequest() {
-            if (!currentUser) return showCustomAlert("تنبيه", "سجل دخولك أولاً لإضافة أصدقاء.");
-            const username = document.getElementById('friend-search-input').value.trim();
-            if(!username) return showCustomAlert("تنبيه", "الرجاء كتابة اسم مستخدم صحيح.");
-            
-            showCustomAlert("تم الإرسال", `تم إرسال طلب صداقة إلى المستخدم: ${username}`);
-            document.getElementById('friend-search-input').value = '';
-        }
-
-        function loadFriendRequests(uid) {
-            // محاكاة صندوق الطلبات الواردة الحي
-            const box = document.getElementById('friend-requests-box');
-            box.innerHTML = `
-                <div class="bg-slate-950/60 border border-slate-800 p-4 rounded-2xl flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80" class="w-10 h-10 rounded-full object-cover">
+              {/* Friends List */}
+              <div>
+                <h3 className="text-sm font-bold text-zinc-300 mb-3 flex items-center gap-2">
+                  <Users className="w-4 h-4 text-[#1DB954]" /> Friends List (
+                  {friends.length})
+                </h3>
+                {friends.length === 0 ? (
+                  <div className="text-center py-6 border border-dashed border-zinc-800 rounded-xl">
+                    <p className="text-xs text-zinc-500">
+                      No friends added yet. Search above to add!
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {friends.map((friend) => (
+                      <div
+                        key={friend.id}
+                        className="flex items-center space-x-3 p-3 bg-zinc-900/60 border border-zinc-800 rounded-xl"
+                      >
+                        <div className="w-8 h-8 rounded-full bg-[#1DB954]/20 flex items-center justify-center text-[#1DB954] font-bold text-xs">
+                          {friend.name[0]}
+                        </div>
                         <div>
-                            <h4 class="text-sm font-bold text-white">sultan_beats</h4>
-                            <p class="text-xs text-slate-400">يرغب بمتابعتك</p>
+                          <p className="text-xs font-bold text-white">
+                            {friend.name}
+                          </p>
+                          <p className="text-[10px] text-zinc-500">
+                            {friend.email}
+                          </p>
                         </div>
-                    </div>
-                    <div class="flex gap-2">
-                        <button onclick="acceptRequest('sultan_beats')" class="w-9 h-9 bg-emerald-600/20 text-emerald-400 rounded-xl hover:bg-emerald-600 hover:text-white transition flex items-center justify-center font-bold">✓</button>
-                        <button onclick="rejectRequest('sultan_beats')" class="w-9 h-9 bg-rose-600/20 text-rose-400 rounded-xl hover:bg-rose-600 hover:text-white transition flex items-center justify-center font-bold">✕</button>
-                    </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Song Modal */}
+      {addModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm"
+            onClick={() => setAddModalOpen(false)}
+          />
+          <div className="relative w-full max-w-md bg-[#181818] border border-zinc-800 rounded-2xl p-6 shadow-2xl z-10">
+            <div className="flex items-center justify-between pb-4 mb-4 border-b border-zinc-800">
+              <h3 className="text-lg font-bold text-white">
+                Post Song & Review
+              </h3>
+              <button
+                onClick={() => setAddModalOpen(false)}
+                className="text-zinc-400 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddSong} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-zinc-400 mb-1">
+                  Song Title *
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Duvet"
+                  value={newTitle}
+                  onChange={(e) => setNewTitle(e.target.value)}
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#1DB954]"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-400 mb-1">
+                  Artist Name *
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. bôa"
+                  value={newArtist}
+                  onChange={(e) => setNewArtist(e.target.value)}
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#1DB954]"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-400 mb-1">
+                  Cover Image URL (Optional)
+                </label>
+                <input
+                  type="url"
+                  placeholder="https://images.unsplash.com/..."
+                  value={newCover}
+                  onChange={(e) => setNewCover(e.target.value)}
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#1DB954]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-400 mb-1">
+                  Your Rating (Guitar Scale)
+                </label>
+                <div className="py-1">
+                  {renderGuitars(newRating, true, (r) => setNewRating(r))}
                 </div>
-            `;
-        }
+              </div>
 
-        function acceptRequest(name) {
-            showCustomAlert("تم بنجاح", `تم قبول طلب الصداقة من ${name}!`);
-        }
-        function rejectRequest(name) {
-            showCustomAlert("إلغاء الطلب", `تم رفض الطلب.`);
-        }
+              <div>
+                <label className="block text-xs font-semibold text-zinc-400 mb-1">
+                  Review Comment (Optional)
+                </label>
+                <textarea
+                  placeholder="What makes this song special?"
+                  value={newReview}
+                  onChange={(e) => setNewReview(e.target.value)}
+                  rows={3}
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-[#1DB954]"
+                />
+              </div>
 
-        // تفاعل النوافذ المنبثقة
-        function showCustomAlert(title, desc) {
-            document.getElementById('modal-alert-title').innerText = title;
-            document.getElementById('modal-alert-desc').innerText = desc;
-            document.getElementById('custom-modal-alert').classList.remove('hidden');
-            document.getElementById('custom-modal-alert').classList.add('flex');
-        }
-        function closeCustomAlert() {
-            document.getElementById('custom-modal-alert').classList.remove('flex');
-            document.getElementById('custom-modal-alert').classList.add('hidden');
-        }
+              <button
+                type="submit"
+                className="w-full bg-[#1DB954] hover:bg-[#1ed760] text-black font-bold py-3 rounded-lg transition-colors mt-2"
+              >
+                Publish Song Entry
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
 
-        function openAuthModal() {
-            document.getElementById('auth-modal').classList.remove('hidden');
-            document.getElementById('auth-modal').classList.add('flex');
-        }
-        function closeAuthModal() {
-            document.getElementById('auth-modal').classList.remove('flex');
-            document.getElementById('auth-modal').classList.add('hidden');
-        }
+      {/* Selected Song Detail Modal */}
+      {selectedSong && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm"
+            onClick={() => setSelectedSong(null)}
+          />
+          <div className="relative w-full max-w-2xl bg-[#181818] border border-zinc-800 rounded-2xl overflow-hidden shadow-2xl z-10 max-h-[90vh] flex flex-col">
+            {/* Top Bar */}
+            <div className="flex items-center justify-between p-4 border-b border-zinc-800 bg-zinc-900/40">
+              <span className="text-xs font-mono text-[#1DB954]">
+                Music Naghma Detail
+              </span>
+              <button
+                onClick={() => setSelectedSong(null)}
+                className="text-zinc-400 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
-        function toggleAuthMode() {
-            isRegistering = !isRegistering;
-            document.getElementById('auth-modal-title').innerText = isRegistering ? 'إنشاء حساب جديد' : 'تسجيل الدخول';
-            document.getElementById('auth-submit-btn').innerText = isRegistering ? 'تسجيل وإرسال تحقق' : 'دخول';
-            document.getElementById('register-extra-fields').classList.toggle('hidden', !isRegistering);
-            document.getElementById('auth-toggle-text').innerText = isRegistering ? 'لديك حساب بالفعل؟' : 'ليس لديك حساب؟';
-        }
+            {/* Modal Body */}
+            <div className="p-6 overflow-y-auto space-y-6">
+              {/* Header Info */}
+              <div className="flex flex-col sm:flex-row gap-6 items-start">
+                <img
+                  src={selectedSong.coverUrl}
+                  alt={selectedSong.title}
+                  className="w-32 h-32 rounded-xl object-cover bg-zinc-800 border border-zinc-700/60"
+                />
+                <div className="flex-1">
+                  <h2 className="text-2xl font-bold text-white">
+                    {selectedSong.title}
+                  </h2>
+                  <p className="text-base text-zinc-400">
+                    {selectedSong.artist}
+                  </p>
+                  <div className="mt-3 flex items-center space-x-3">
+                    {renderGuitars(selectedSong.rating)}
+                  </div>
+                  <p className="mt-2 text-xs text-zinc-500">
+                    Added to catalog by: {selectedSong.addedBy}
+                  </p>
+                </div>
+              </div>
 
-        async function handleAuthSubmit() {
-            const email = document.getElementById('auth-email').value;
-            const password = document.getElementById('auth-password').value;
-            
-            try {
-                if (isRegistering) {
-                    const username = document.getElementById('auth-username').value;
-                    const avatar = document.getElementById('auth-avatar').value || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80';
-                    const bio = document.getElementById('auth-bio').value;
+              {/* Add New Review Section */}
+              <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+                <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-2">
+                  Write Your Review
+                </h4>
+                <form onSubmit={handleAddReview} className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xs text-zinc-400">Rating:</span>
+                    {renderGuitars(userRating, true, (r) => setUserRating(r))}
+                  </div>
+                  <textarea
+                    placeholder="Share your thoughts on this track..."
+                    value={userReviewText}
+                    onChange={(e) => setUserReviewText(e.target.value)}
+                    rows={2}
+                    className="w-full bg-zinc-800 border border-zinc-700/60 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-[#1DB954]"
+                    required
+                  />
+                  <button
+                    type="submit"
+                    className="bg-[#1DB954] hover:bg-[#1ed760] text-black font-bold text-xs px-4 py-2 rounded-lg transition-colors"
+                  >
+                    Submit Guitar Rating
+                  </button>
+                </form>
+              </div>
 
-                    if(!username) {
-                        showCustomAlert("تنبيه", "الرجاء إدخال اسم المستخدم الفريد.");
-                        return;
-                    }
-
-                    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                    
-                    // حفظ معلومات المستخدم الإضافية (يوزر، أفتار، بايو) في قاعدة البيانات
-                    await db.collection('users').doc(userCredential.user.uid).set({
-                        username: username,
-                        avatar: avatar,
-                        bio: bio,
-                        email: email
-                    });
-
-                    // إرسال رابط التحقق الرسمي إلى الإيميل لأجل الأمان
-                    await userCredential.user.sendEmailVerification();
-                    
-                    closeAuthModal();
-                    showCustomAlert("تم إنشاء الحساب بنجاح", "تم إرسال رابط التحقق إلى بريدك الإلكتروني لأجل الأمان. يرجى تفعيله!");
-                } else {
-                    await auth.signInWithEmailAndPassword(email, password);
-                    closeAuthModal();
-                    showCustomAlert("تم بنجاح", "تم تسجيل الدخول بنجاح إلى سحابة نغمة!");
-                }
-            } catch (error) {
-                showCustomAlert("خطأ في المصادقة", error.message);
-            }
-        }
-
-        async function logout() {
-            await auth.signOut();
-            showCustomAlert("تسجيل خروج", "تم تسجيل الخروج بنجاح.");
-        }
-
-        function switchTab(tab) {
-            const homeTab = document.getElementById('tab-home');
-            const friendsTab = document.getElementById('tab-friends');
-            if(tab === 'home') {
-                homeTab.classList.remove('hidden');
-                friendsTab.classList.add('hidden');
-            } else if(tab === 'friends') {
-                homeTab.classList.add('hidden');
-                friendsTab.classList.remove('hidden');
-            } else {
-                homeTab.classList.remove('hidden');
-                friendsTab.classList.add('hidden');
-            }
-        }
-
-        function closeProfileModal() {
-            document.getElementById('profile-modal').classList.remove('flex');
-            document.getElementById('profile-modal').classList.add('hidden');
-        }
-
-        // تهيئة العرض الأولي
-        renderSongs();
-    </script>
-</body>
-</html>
+              {/* Reviews List */}
+              <div>
+                <h4 className="text-sm font-bold text-white mb-3">
+                  Community Reviews ({selectedSong.reviews.length})
+                </h4>
+                {selectedSong.reviews.length === 0 ? (
+                  <p className="text-xs text-zinc-500 italic">
+                    No reviews written yet. Be the first!
+                  </p>
+                ) : (
+                  <div className="space-y-3">
+                    {selectedSong.reviews.map((rev) => (
+                      <div
+                        key={rev.id}
+                        className="bg-zinc-900/50 border border-zinc-800/80 rounded-xl p-3 space-y-2"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <img
+                              src={rev.userAvatar}
+                              alt={rev.userName}
+                              className="w-6 h-6 rounded-full bg-zinc-800"
+                            />
+                            <span className="text-xs font-bold text-white">
+                              {rev.userName}
+                            </span>
+                          </div>
+                          {renderGuitars(rev.rating)}
+                        </div>
+                        <p className="text-xs text-zinc-300 pl-8">
+                          {rev.comment}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
